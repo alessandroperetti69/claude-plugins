@@ -4,6 +4,7 @@ Catalogo di plugin per Claude Code. Ogni cartella di primo livello è un plugin;
 
 | Plugin | Cosa fa |
 |---|---|
+| [`go-no-go`](./go-no-go) | Valuta idee di business/startup con ricerca web, stress-test dei numeri e pre-mortem → verdetto GO / CONDITIONAL-GO / NO-GO. |
 | [`cleanloop`](./cleanloop) | Tiene il contesto sotto soglia (25%), fa checkpoint su `PROGRESS.md`/`CLAUDE.md` e itera a sessioni fresche fino a `DONE`. |
 
 ## Installazione (collaboratori)
@@ -14,6 +15,7 @@ Dentro Claude Code:
 ```
 /plugin marketplace add alessandroperetti69/claude-plugins
 /plugin install cleanloop@peretti-plugins
+/plugin install go-no-go@peretti-plugins
 ```
 oppure da terminale:
 ```bash

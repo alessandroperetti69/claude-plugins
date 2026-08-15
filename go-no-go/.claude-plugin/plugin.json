@@ -1,0 +1,7 @@
+{
+  "name": "go-no-go",
+  "version": "2.0.0",
+  "description": "Valutazione rigorosa, evidence-based e con ricerca web di idee di business/startup: assunzioni falsificabili, stress-test dei numeri, pre-mortem, forecast calibrato, verdetto GO / CONDITIONAL-GO / NO-GO.",
+  "author": { "name": "Alessandro Peretti" },
+  "keywords": ["startup", "business-plan", "venture", "evaluation", "pre-mortem"]
+}
