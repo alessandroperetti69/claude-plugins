@@ -38,7 +38,7 @@ STATUS == DONE ? exit 0 : exit 4
 Argomenti passati a `claude`:
 | Argomento | Valore | Perché |
 |---|---|---|
-| `-p` | | non interattivo |
+| `-p --output-format stream-json --verbose` | | non interattivo; lo stream JSON viene salvato grezzo in `iter-NNN-….jsonl`, reso leggibile a video da `stream_pretty` (testo, `→ tool`, modello, riepilogo) e usato da `iteration_summary` per modello, token, costo, turni |
 | `--plugin-dir` | radice del plugin | carica hook e skill anche se il plugin non è installato |
 | `--permission-mode` | `CLEANLOOP_PERMISSION_MODE` | nessuno risponde ai prompt in `-p` |
 | `--autocompact` | `window × (HARD+25)/100`, limitato a [100k, 1M] | rete di sicurezza ben oltre la soglia dura |
@@ -52,7 +52,7 @@ Ambiente esportato al processo: `CLEANLOOP_ACTIVE=1` (attiva Stop hook e messagg
 
 Dopo ogni iterazione aggiunge a `LOOPLOG.md` la riga `| i | HH:MM:SS | pct% (usati / finestra) | motivo | STATUS |` (motivo: fine naturale / soglia / soglia dura, più `exit rc` se ≠ 0). Eventi: `iter_start` prima di lanciare `claude`; `iter_end` dopo, con durata, exit code, ultima misura di contesto (`state/last.json`), `reason` derivato dal livello di soglia raggiunto nella sessione, e `progress`/`status`; `loop_start`/`loop_stop` intorno al ciclo. Tutto in `.cleanloop/logs/events.log`.
 
-Output: stdout+stderr di `claude` in `tee` su `.cleanloop/logs/iter-<NNN>-<YYYYmmdd-HHMMSS>.log`; il codice di uscita di `claude` è quello di `PIPESTATUS[0]` e viene solo segnalato (non interrompe il loop: la decisione è basata sul progresso di `PROGRESS.md`).
+Output: stream grezzo in `.cleanloop/logs/iter-<NNN>-<ts>.jsonl`, versione leggibile (+ stderr) in `.cleanloop/logs/iter-<NNN>-<ts>.log`; a fine iterazione stampa `modello · token in/out · costo API eq. · turni`; il codice di uscita di `claude` è quello di `PIPESTATUS[0]` e viene solo segnalato (non interrompe il loop: la decisione è basata sul progresso di `PROGRESS.md`).
 
 ### `status`, `reset`, `disable`
 - `status`: attivo?, `STATUS`/`ITERATION` da `PROGRESS.md`, soglie e finestra, ultimo `state/last.json`, ultimi 3 log.

@@ -60,6 +60,6 @@ LOOPLOG.md              log leggibile: una riga per uscita di iterazione / ripar
 .cleanloop/config       configurazione del progetto
 .cleanloop/enabled      interruttore: se esiste, gli hook sono attivi qui
 .cleanloop/state/       last.json (ultima misura del contesto), marker per sessione (livello, contatore, checksum iniziale)
-.cleanloop/logs/        iter-NNN-<timestamp>.log (output di ogni iterazione) e events.log (log eventi)
+.cleanloop/logs/        iter-NNN-<ts>.log (output leggibile), iter-NNN-<ts>.jsonl (stream grezzo), events.log (log eventi)
 ```
 `state/` e `logs/` sono aggiunti a `.gitignore` da `init` (se il progetto è un repo git).

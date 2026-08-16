@@ -4,6 +4,12 @@ All notable changes to cleanloop are documented here. Format: [Keep a Changelog]
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-08-16
+### Added
+- Per-iteration **model, tokens and API-equivalent cost**: iterations run with `--output-format stream-json`; the runner prints model at start, text/tools live, and a summary at the end; `LOOPLOG.md` gains `Modello`, `Token iterazione`, `Costo API eq.` columns; `iter_end` events carry `model tokens_in tokens_out cost_usd turns`. Raw stream saved as `iter-NNN-<ts>.jsonl`.
+### Notes
+- Subscription rate limits (5h/7d) are not exposed to `-p` sessions or hooks; use `/usage` interactively.
+
 ## [0.4.0] — 2026-08-16
 ### Added
 - `LOOPLOG.md` next to `TASK.md`/`PROGRESS.md`: readable table with one row per iteration exit (`# | Ora | Contesto all'uscita | Motivo | STATUS`), plus `↻` rows for interactive `/clear`/`/compact` restarts with the context before the restart. Created by `init`; name via `CLEANLOOP_LOG_FILE`.

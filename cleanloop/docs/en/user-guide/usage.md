@@ -27,7 +27,7 @@ Each iteration is a separate `claude -p` process with an empty context. Inside t
 - at **40%** it asks to stop immediately;
 - on exit the `Stop` hook blocks termination if `PROGRESS.md` was not modified.
 
-Every iteration exit lands in **`LOOPLOG.md`**, next to `TASK.md`/`PROGRESS.md`: a table with number, time and context usage at exit (plus reason and STATUS). In interactive mode it also records each restart via `/clear`/`/compact` (row `↻`, with the context *before* the restart). The machine-readable detail is in `.cleanloop/logs/events.log` (`cleanloop log`, see [formats](../technical/file-formats.md#looplogmd)).
+While the loop runs you see, for each iteration, the **model** in use (`· modello: claude-…`), the text and tools used, and at the end **tokens consumed and API-equivalent cost** (`total_cost_usd`: not charged on a subscription, but it measures consumption). Every iteration exit lands in **`LOOPLOG.md`**, next to `TASK.md`/`PROGRESS.md`: a table with number, time, model, context usage at exit, tokens, cost (plus reason and STATUS). Subscription limits (5h/7-day windows) are not exposed in `-p`: check them with `/usage` in an interactive session. In interactive mode it also records each restart via `/clear`/`/compact` (row `↻`, with the context *before* the restart). The machine-readable detail is in `.cleanloop/logs/events.log` (`cleanloop log`, see [formats](../technical/file-formats.md#looplogmd)).
 
 The loop stops on: `STATUS: DONE` · `STATUS: BLOCKED` (a human is needed) · **stall** (3 iterations without changes to `PROGRESS.md`) · maximum iterations. See [exit codes](configuration.md#runner-exit-codes).
 

@@ -38,7 +38,7 @@ STATUS == DONE ? exit 0 : exit 4
 Arguments passed to `claude`:
 | Argument | Value | Why |
 |---|---|---|
-| `-p` | | non-interactive |
+| `-p --output-format stream-json --verbose` | | non-interactive; the JSON stream is saved raw to `iter-NNN-….jsonl`, rendered readable on screen by `stream_pretty` (text, `→ tool`, model, summary) and parsed by `iteration_summary` for model, tokens, cost, turns |
 | `--plugin-dir` | plugin root | loads hooks and skill even if the plugin is not installed |
 | `--permission-mode` | `CLEANLOOP_PERMISSION_MODE` | nobody answers prompts in `-p` |
 | `--autocompact` | `window × (HARD+25)/100`, clamped to [100k, 1M] | safety net well beyond the hard threshold |
@@ -52,7 +52,7 @@ Environment exported to the process: `CLEANLOOP_ACTIVE=1` (enables the Stop hook
 
 After each iteration it appends to `LOOPLOG.md` the row `| i | HH:MM:SS | pct% (used / window) | reason | STATUS |` (reason: natural end / threshold / hard threshold, plus `exit rc` if ≠ 0). Events: `iter_start` before launching `claude`; `iter_end` afterwards, with duration, exit code, last context measurement (`state/last.json`), `reason` derived from the threshold level reached in the session, and `progress`/`status`; `loop_start`/`loop_stop` around the cycle. All in `.cleanloop/logs/events.log`.
 
-Output: `claude` stdout+stderr `tee`'d to `.cleanloop/logs/iter-<NNN>-<YYYYmmdd-HHMMSS>.log`; the `claude` exit code is `PIPESTATUS[0]` and is only reported (it does not stop the loop: the decision is based on `PROGRESS.md` progress).
+Output: raw stream in `.cleanloop/logs/iter-<NNN>-<ts>.jsonl`, readable version (+ stderr) in `.cleanloop/logs/iter-<NNN>-<ts>.log`; at the end of the iteration it prints `model · tokens in/out · API-equivalent cost · turns`; the `claude` exit code is `PIPESTATUS[0]` and is only reported (it does not stop the loop: the decision is based on `PROGRESS.md` progress).
 
 ### `status`, `reset`, `disable`
 - `status`: active?, `STATUS`/`ITERATION` from `PROGRESS.md`, thresholds and window, last `state/last.json`, latest 3 logs.

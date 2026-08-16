@@ -170,13 +170,33 @@ CFG
   say "pronto. Prossimo: compila $CLEANLOOP_TASK_FILE, poi: $(basename "$0") run"
 }
 
+# Rende leggibile lo stream-json di claude -p: testo dell'assistente, tool usati, modello all'avvio.
+stream_pretty() {
+  jq -r --unbuffered '
+    if .type=="system" and .subtype=="init" then "· modello: \(.model // "?")"
+    elif .type=="assistant" then
+      (.message.content // [])[] | (if .type=="text" then .text elif .type=="tool_use" then "  → \(.name)" else empty end)
+    elif .type=="result" then
+      "· fine: \(.subtype // "?") · turni: \(.num_turns // 0) · costo API eq.: $\((.total_cost_usd // 0)*100|round/100)"
+    else empty end' 2>/dev/null
+}
+# Dal raw stream-json: "modello token_in token_out costo turni"
+iteration_summary() {
+  local raw="$1" model r
+  model=$(grep -m1 '"subtype":"init"' "$raw" 2>/dev/null | jq -r '.model // "?"' 2>/dev/null); model=${model:-?}
+  r=$(grep '"type":"result"' "$raw" 2>/dev/null | tail -1 | jq -r '
+      (.usage // {}) as $u |
+      "\(($u.input_tokens // 0)+($u.cache_creation_input_tokens // 0)+($u.cache_read_input_tokens // 0)) \($u.output_tokens // 0) \(.total_cost_usd // 0) \(.num_turns // 0)"' 2>/dev/null)
+  echo "$model ${r:-0 0 0 0}"
+}
+
 run_iteration() {  # $1 = numero iterazione
   local i="$1" log="$CWD/.cleanloop/logs/iter-$(printf '%03d' "$i")-$(date +%Y%m%d-%H%M%S).log"
   local window autocompact args=()
   window=$(cleanloop_context_window)
   # rete di sicurezza: auto-compact ben oltre la soglia dura, nel range accettato (100k-1M)
   autocompact=$(awk -v w="$window" -v h="$CLEANLOOP_HARD" 'BEGIN{ a=int(w*(h+25)/100); if(a<100000)a=100000; if(a>1000000)a=1000000; print a }')
-  args=( -p --plugin-dir "$CLEANLOOP_ROOT"
+  args=( -p --output-format stream-json --verbose --plugin-dir "$CLEANLOOP_ROOT"
          --permission-mode "$CLEANLOOP_PERMISSION_MODE"
          --autocompact "$autocompact"
          --append-system-prompt-file "$CLEANLOOP_ROOT/prompts/iteration-system.md"
@@ -186,17 +206,21 @@ run_iteration() {  # $1 = numero iterazione
   local prompt="Iterazione $i/$CLEANLOOP_MAX_ITER di cleanloop. Il task è in $CLEANLOOP_TASK_FILE, lo stato in $CLEANLOOP_PROGRESS_FILE (entrambi già iniettati nel contesto). Riparti dal 'Prossimo passo (handoff)', completa e verifica UN sotto-task, aggiorna $CLEANLOOP_PROGRESS_FILE, termina."
   say "iterazione $i/$CLEANLOOP_MAX_ITER — log: ${log#$CWD/}"
   cleanloop_log "$CWD" "event=iter_start iter=$i model=${CLEANLOOP_MODEL:-default} threshold=${CLEANLOOP_THRESHOLD}% hard=${CLEANLOOP_HARD}%"
-  local t0=$SECONDS
+  local t0=$SECONDS raw="${log%.log}.jsonl"
   CLEANLOOP_ACTIVE=1 CLEANLOOP_ITER="$i" CLEANLOOP_ROOT="$CLEANLOOP_ROOT" \
-    claude "${args[@]}" "$prompt" 2>&1 | tee "$log"
+    claude "${args[@]}" "$prompt" 2>>"$log" | tee "$raw" | stream_pretty | tee -a "$log"
   local rc="${PIPESTATUS[0]}" pct used win sess lvl reason
+  # riepilogo dall'evento result (token, costo, modello)
+  local model tin tout cost turns
+  read -r model tin tout cost turns <<< "$(iteration_summary "$raw")"
+  say "modello: $model · token: $(cleanloop_short_num "$tin") in / $(cleanloop_short_num "$tout") out · costo API eq.: $(LC_ALL=C awk -v c="$cost" 'BEGIN{printf "$%.2f", c}') · turni: $turns"
   read -r pct used win sess <<< "$(cleanloop_last_ctx "$CWD")"
   lvl=$(cat "$CWD/.cleanloop/state/$sess.level" 2>/dev/null || echo 0)
   case "$lvl" in 2) reason=hard_threshold ;; 1) reason=soft_threshold ;; *) reason=natural_end ;; esac
   local reason_it; case "$reason" in hard_threshold) reason_it="soglia dura (${CLEANLOOP_HARD}%)";; soft_threshold) reason_it="soglia (${CLEANLOOP_THRESHOLD}%)";; *) reason_it="fine naturale";; esac
   [ "$rc" -ne 0 ] && reason_it="$reason_it, exit $rc"
-  cleanloop_looplog "$CWD" "$i" "$pct" "$used" "$win" "$reason_it" "$(status_of)"
-  ITER_END_LINE="event=iter_end iter=$i exit=$rc dur=$((SECONDS-t0))s ctx=${pct}% used=$used window=$win reason=$reason session=$sess"
+  cleanloop_looplog "$CWD" "$i" "$pct" "$used" "$win" "$reason_it" "$(status_of)" "$model" "$tin" "$tout" "$cost"
+  ITER_END_LINE="event=iter_end iter=$i exit=$rc dur=$((SECONDS-t0))s model=$model tokens_in=$tin tokens_out=$tout cost_usd=$cost turns=$turns ctx=${pct}% used=$used window=$win reason=$reason session=$sess"
   return "$rc"
 }
 

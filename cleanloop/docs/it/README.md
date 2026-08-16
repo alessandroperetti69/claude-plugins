@@ -21,4 +21,4 @@ cleanloop è un plugin per Claude Code che tiene il contesto della conversazione
 | [Formati dei file](technical/file-formats.md) | `TASK.md`, `PROGRESS.md`, `.cleanloop/config`, stato |
 | [Sviluppo](technical/development.md) | struttura del repo, test, rilascio sul marketplace |
 
-Versione documentata: **0.4.0** — vedi [CHANGELOG](../../CHANGELOG.md).
+Versione documentata: **0.5.0** — vedi [CHANGELOG](../../CHANGELOG.md).

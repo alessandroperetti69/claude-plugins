@@ -74,14 +74,18 @@ cleanloop_last_ctx() {
   [ -f "$f" ] && jq -r '"\(.pct) \(.used) \(.window) \(.session)"' "$f" 2>/dev/null || echo "0 0 0 -"
 }
 
-# LOOPLOG.md: tabella leggibile. cleanloop_looplog cwd "n" "pct" "used" "window" "motivo" "status"
+# LOOPLOG.md: tabella leggibile.
+# cleanloop_looplog cwd "n" "pct" "used" "window" "motivo" "status" ["modello" "token_in" "token_out" "costo_usd"]
 cleanloop_looplog() {
-  local cwd="$1" n="$2" pct="$3" used="$4" window="$5" reason="$6" status="$7" f
+  local cwd="$1" n="$2" pct="$3" used="$4" window="$5" reason="$6" status="$7" model="${8:--}" tin="${9:-}" tout="${10:-}" cost="${11:-}" f tok
   f="$cwd/$CLEANLOOP_LOG_FILE"
-  [ -f "$f" ] || printf '# LOOPLOG\n\nUna riga per ogni uscita di iterazione o ripartenza di sessione, con l%soccupazione della finestra di contesto in quel momento.\n\n| # | Ora | Contesto all%suscita | Motivo | STATUS |\n|---|---|---|---|---|\n' "'" "'" > "$f"
+  [ -f "$f" ] || printf '# LOOPLOG\n\nUna riga per ogni uscita di iterazione o ripartenza di sessione: modello, occupazione della finestra di contesto all%suscita, token consumati nell%siterazione (in = input+cache, out = output) e costo API equivalente (con abbonamento non è addebitato).\n\n| # | Ora | Modello | Contesto all%suscita | Token iterazione | Costo API eq. | Motivo | STATUS |\n|---|---|---|---|---|---|---|---|\n' "'" "'" "'" > "$f"
   [ -z "$n" ] && return 0   # solo intestazione
-  printf '| %s | %s | %s%% (%s / %s) | %s | %s |\n' "$n" "$(date +%H:%M:%S)" "$pct" "$(cleanloop_fmt_num "$used")" "$(cleanloop_fmt_num "$window")" "$reason" "$status" >> "$f"
+  if [ -n "$tin" ]; then tok="$(cleanloop_short_num "$tin") in / $(cleanloop_short_num "$tout") out"; else tok="-"; fi
+  [ -n "$cost" ] && cost=$(LC_ALL=C awk -v c="$cost" 'BEGIN{printf "$%.2f", c}') || cost="-"
+  printf '| %s | %s | %s | %s%% (%s / %s) | %s | %s | %s | %s |\n' "$n" "$(date +%H:%M:%S)" "$model" "$pct" "$(cleanloop_fmt_num "$used")" "$(cleanloop_fmt_num "$window")" "$tok" "$cost" "$reason" "$status" >> "$f"
 }
+cleanloop_short_num() { awk -v n="${1:-0}" 'BEGIN{ if (n>=1000000) printf "%.1fM", n/1000000; else if (n>=1000) printf "%.0fk", n/1000; else printf "%d", n }'; }
 cleanloop_fmt_num() { awk -v n="$1" 'BEGIN{ s=n; out=""; while (length(s)>3) { out=" " substr(s,length(s)-2) out; s=substr(s,1,length(s)-3) } print s out }'; }
 cleanloop_status_of() { grep -Em1 '^STATUS:' "$1/$CLEANLOOP_PROGRESS_FILE" 2>/dev/null | sed -E 's/^STATUS:[[:space:]]*//; s/[[:space:]]*#.*//' | tr -d '\r'; }
 

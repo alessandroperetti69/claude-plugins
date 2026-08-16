@@ -60,6 +60,6 @@ LOOPLOG.md              readable log: one row per iteration exit / restart, with
 .cleanloop/config       project configuration
 .cleanloop/enabled      switch: if present, hooks are active here
 .cleanloop/state/       last.json (last context measurement), per-session markers (level, counter, initial checksum)
-.cleanloop/logs/        iter-NNN-<timestamp>.log (output of each iteration) and events.log (event log)
+.cleanloop/logs/        iter-NNN-<ts>.log (readable output), iter-NNN-<ts>.jsonl (raw stream), events.log (event log)
 ```
 `state/` and `logs/` are added to `.gitignore` by `init` (if the project is a git repo).

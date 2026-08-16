@@ -27,7 +27,7 @@ Ogni iterazione è un processo `claude -p` separato con contesto vuoto. Dentro l
 - a **40%** chiede di fermarsi subito;
 - all'uscita l'hook `Stop` blocca la fine se `PROGRESS.md` non è stato modificato.
 
-Ogni uscita di iterazione finisce in **`LOOPLOG.md`**, accanto a `TASK.md`/`PROGRESS.md`: una tabella con numero, ora e occupazione del contesto all'uscita (più motivo e STATUS). In interattivo vi compare anche ogni ripartenza con `/clear`/`/compact` (riga `↻`, con il contesto *prima* del riavvio). Il dettaglio macchina-leggibile è in `.cleanloop/logs/events.log` (`cleanloop log`, vedi [formati](../technical/file-formats.md#looplogmd)).
+Durante il loop vedi a video, per ogni iterazione, il **modello** in uso (`· modello: claude-…`), il testo e i tool usati, e alla fine **token consumati e costo API equivalente** (`total_cost_usd`: con l'abbonamento non è addebitato, ma misura il consumo). Ogni uscita di iterazione finisce in **`LOOPLOG.md`**, accanto a `TASK.md`/`PROGRESS.md`: una tabella con numero, ora, modello, occupazione del contesto all'uscita, token, costo (più motivo e STATUS). I limiti dell'abbonamento (finestre 5h/7 giorni) non sono esposti in `-p`: controllali con `/usage` in una sessione interattiva. In interattivo vi compare anche ogni ripartenza con `/clear`/`/compact` (riga `↻`, con il contesto *prima* del riavvio). Il dettaglio macchina-leggibile è in `.cleanloop/logs/events.log` (`cleanloop log`, vedi [formati](../technical/file-formats.md#looplogmd)).
 
 Il loop si ferma per: `STATUS: DONE` · `STATUS: BLOCKED` (serve un umano) · **stallo** (3 iterazioni senza modifiche a `PROGRESS.md`) · massimo iterazioni. Vedi [codici di uscita](configuration.md#codici-di-uscita-del-runner).
 

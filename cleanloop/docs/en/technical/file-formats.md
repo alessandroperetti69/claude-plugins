@@ -47,15 +47,18 @@ Constraints: ~40 lines max, **replace** rather than accumulate (the file is re-i
 ## `LOOPLOG.md` (written by the runner and the SessionStart hook)
 Markdown table, one row per **iteration exit** (runner) or **interactive restart** (`/clear`, `/compact`; SessionStart hook, row `↻`):
 ```markdown
-| # | Ora | Contesto all'uscita | Motivo | STATUS |
-|---|---|---|---|---|
-| 1 | 11:34:10 | 29% (290 877 / 1 000 000) | soglia (25%) | IN_PROGRESS |
-| ↻ | 12:02:41 | 31% (312 004 / 1 000 000) | /clear | IN_PROGRESS |
-| 2 | 12:20:03 | 12% (121 550 / 1 000 000) | fine naturale | DONE |
+| # | Ora | Modello | Contesto all'uscita | Token iterazione | Costo API eq. | Motivo | STATUS |
+|---|---|---|---|---|---|---|---|
+| 1 | 11:34:10 | claude-opus-5 | 29% (290 877 / 1 000 000) | 1.9M in / 12k out | $3.41 | soglia (25%) | IN_PROGRESS |
+| ↻ | 12:02:41 | - | 31% (312 004 / 1 000 000) | - | - | /clear | IN_PROGRESS |
+| 2 | 12:20:03 | claude-sonnet-5 | 12% (121 550 / 1 000 000) | 610k in / 4k out | $0.61 | fine naturale | DONE |
 ```
 - `#`: iteration number (loop) or `↻` (interactive restart).
 - `Ora`: local `HH:MM:SS` at exit/restart.
+- `Modello`: id of the model actually used in the iteration (from the `init` event of the `-p` stream).
 - `Contesto all'uscita`: percentage and `used / window` of the session's last measurement (for `↻`: the measurement *before* the restart).
+- `Token iterazione`: consumption of the whole iteration, `in` = input + cache creation + cache read (summed over all turns, hence much larger than the context), `out` = output.
+- `Costo API eq.`: `total_cost_usd` reported by Claude Code — what the iteration would cost under API billing; with a subscription it is not charged but it measures consumption. Subscription limits (5h/7d windows) are **not** available in `-p`: check them with `/usage` in an interactive session.
 - `Motivo`: `fine naturale` (natural end), `soglia (N%)` (soft threshold), `soglia dura (N%)` (hard threshold), optionally `, exit <rc>`; or `/clear`, `/compact`.
 - `STATUS`: value in `PROGRESS.md` after the event.
 Created by `init` with the header only; name configurable via `CLEANLOOP_LOG_FILE`. Not injected into the context. Headings and reasons are in Italian.

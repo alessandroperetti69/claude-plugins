@@ -46,15 +46,18 @@ Vincoli: ~40 righe massime, **sostituire** non accumulare (il file è reiniettat
 ## `LOOPLOG.md` (scritto dal runner e dall'hook SessionStart)
 Tabella Markdown, una riga per **uscita di iterazione** (runner) o **ripartenza interattiva** (`/clear`, `/compact`; hook SessionStart, riga `↻`):
 ```markdown
-| # | Ora | Contesto all'uscita | Motivo | STATUS |
-|---|---|---|---|---|
-| 1 | 11:34:10 | 29% (290 877 / 1 000 000) | soglia (25%) | IN_PROGRESS |
-| ↻ | 12:02:41 | 31% (312 004 / 1 000 000) | /clear | IN_PROGRESS |
-| 2 | 12:20:03 | 12% (121 550 / 1 000 000) | fine naturale | DONE |
+| # | Ora | Modello | Contesto all'uscita | Token iterazione | Costo API eq. | Motivo | STATUS |
+|---|---|---|---|---|---|---|---|
+| 1 | 11:34:10 | claude-opus-5 | 29% (290 877 / 1 000 000) | 1.9M in / 12k out | $3.41 | soglia (25%) | IN_PROGRESS |
+| ↻ | 12:02:41 | - | 31% (312 004 / 1 000 000) | - | - | /clear | IN_PROGRESS |
+| 2 | 12:20:03 | claude-sonnet-5 | 12% (121 550 / 1 000 000) | 610k in / 4k out | $0.61 | fine naturale | DONE |
 ```
 - `#`: numero dell'iterazione (loop) o `↻` (ripartenza interattiva).
 - `Ora`: `HH:MM:SS` locale al momento dell'uscita/ripartenza.
+- `Modello`: id del modello effettivamente usato nell'iterazione (dall'evento `init` dello stream `-p`).
 - `Contesto all'uscita`: percentuale e `usati / finestra` dell'ultima misura della sessione (per `↻`: la misura *prima* del riavvio).
+- `Token iterazione`: consumo dell'intera iterazione, `in` = input + cache creation + cache read (somma su tutti i turni, per questo è molto più grande del contesto), `out` = output.
+- `Costo API eq.`: `total_cost_usd` riportato da Claude Code — il costo che l'iterazione avrebbe con fatturazione API; con un abbonamento non viene addebitato ma è la misura del consumo. I limiti dell'abbonamento (finestre 5h/7g) **non** sono disponibili in `-p`: si vedono con `/usage` in una sessione interattiva.
 - `Motivo`: `fine naturale`, `soglia (N%)`, `soglia dura (N%)`, eventualmente `, exit <rc>`; oppure `/clear`, `/compact`.
 - `STATUS`: valore in `PROGRESS.md` dopo l'evento.
 Il file è creato da `init` con la sola intestazione; nome configurabile con `CLEANLOOP_LOG_FILE`. Non viene iniettato nel contesto.
