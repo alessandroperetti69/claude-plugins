@@ -14,7 +14,7 @@ Per design sono inerti finché il progetto non è attivato: serve `.cleanloop/en
 - `cleanloop status` mostra l'ultima misura (`.cleanloop/state/last.json`).
 
 ### Voglio vedere quando e perché le iterazioni sono terminate
-`cleanloop log` (o `-n 20`): per ogni iterazione `iter_end` riporta durata, `ctx=` (percentuale di contesto all'uscita) e `reason=` (`natural_end`, `soft_threshold`, `hard_threshold`); ogni `session_start` riporta `prev_ctx=`, cioè la percentuale prima del riavvio. Vale anche per le sessioni interattive con `/clear`.
+Apri `LOOPLOG.md` nel progetto: una riga per iterazione con ora, contesto all'uscita, motivo e STATUS (e righe `↻` per i `/clear` interattivi). Per il dettaglio, `cleanloop log` (o `-n 20`): per ogni iterazione `iter_end` riporta durata, `ctx=` (percentuale di contesto all'uscita) e `reason=` (`natural_end`, `soft_threshold`, `hard_threshold`); ogni `session_start` riporta `prev_ctx=`, cioè la percentuale prima del riavvio. Vale anche per le sessioni interattive con `/clear`.
 
 ### Il loop si ferma per "stallo"
 Tre iterazioni consecutive non hanno modificato `PROGRESS.md`. Cause tipiche:

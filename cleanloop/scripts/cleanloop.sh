@@ -7,7 +7,7 @@
 #   cleanloop.sh run   [-n MAX_ITER]      esegue il loop finché STATUS: DONE/BLOCKED, max iter o stallo
 #   cleanloop.sh once                     una sola iterazione
 #   cleanloop.sh status                   stato corrente (STATUS, iterazione, ultimo % contesto, ultimi eventi)
-#   cleanloop.sh log   [-n N]             log eventi: avvii/uscite iterazioni, soglie, ripartenze, con % contesto
+#   cleanloop.sh log   [-n N]             log eventi dettagliato (.cleanloop/logs/events.log); il log leggibile è LOOPLOG.md
 #   cleanloop.sh reset                    azzera stato hook (non tocca PROGRESS.md)
 #   cleanloop.sh disable                  disattiva gli hook nel progetto (rimuove .cleanloop/enabled)
 set -u
@@ -145,6 +145,7 @@ export CLEANLOOP_PERMISSION_MODE="\${CLEANLOOP_PERMISSION_MODE:-auto}"   # auto|
 export CLEANLOOP_MODEL="\${CLEANLOOP_MODEL:-}"                 # vuoto = default
 export CLEANLOOP_MAX_BUDGET_USD="\${CLEANLOOP_MAX_BUDGET_USD:-}" # per iterazione, vuoto = nessun limite
 export CLEANLOOP_CONTEXT_WINDOW="\${CLEANLOOP_CONTEXT_WINDOW:-}" # vuoto = autodetect (200k, o 1M se il modello è [1m])
+export CLEANLOOP_LOG_FILE="\${CLEANLOOP_LOG_FILE:-LOOPLOG.md}"      # log leggibile delle uscite/ripartenze
 CFG
     say "creato .cleanloop/config"
   fi
@@ -159,6 +160,9 @@ CFG
   fi
   if [ ! -f "$CWD/$CLEANLOOP_PROGRESS_FILE" ]; then
     write_progress_file; say "creato $CLEANLOOP_PROGRESS_FILE"
+  fi
+  if [ ! -f "$CWD/$CLEANLOOP_LOG_FILE" ]; then
+    cleanloop_looplog "$CWD" "" 0 0 0 "" ""; say "creato $CLEANLOOP_LOG_FILE"
   fi
   if [ -d "$CWD/.git" ] && ! grep -qs '^\.cleanloop/state' "$CWD/.gitignore" 2>/dev/null; then
     printf '.cleanloop/state/\n.cleanloop/logs/\n' >> "$CWD/.gitignore"; say "aggiunto .cleanloop/state|logs a .gitignore"
@@ -189,6 +193,9 @@ run_iteration() {  # $1 = numero iterazione
   read -r pct used win sess <<< "$(cleanloop_last_ctx "$CWD")"
   lvl=$(cat "$CWD/.cleanloop/state/$sess.level" 2>/dev/null || echo 0)
   case "$lvl" in 2) reason=hard_threshold ;; 1) reason=soft_threshold ;; *) reason=natural_end ;; esac
+  local reason_it; case "$reason" in hard_threshold) reason_it="soglia dura (${CLEANLOOP_HARD}%)";; soft_threshold) reason_it="soglia (${CLEANLOOP_THRESHOLD}%)";; *) reason_it="fine naturale";; esac
+  [ "$rc" -ne 0 ] && reason_it="$reason_it, exit $rc"
+  cleanloop_looplog "$CWD" "$i" "$pct" "$used" "$win" "$reason_it" "$(status_of)"
   ITER_END_LINE="event=iter_end iter=$i exit=$rc dur=$((SECONDS-t0))s ctx=${pct}% used=$used window=$win reason=$reason session=$sess"
   return "$rc"
 }
@@ -237,6 +244,7 @@ cmd_status() {
     echo "ultimo ctx: $(jq -r '"\(.pct)% (\(.used)/\(.window)) alle \(.ts)"' "$CWD/.cleanloop/state/last.json")"
   fi
   ls "$CWD/.cleanloop/logs" 2>/dev/null | grep '^iter-' | tail -3 | sed 's/^/log:        /'
+  if [ -f "$CWD/$CLEANLOOP_LOG_FILE" ]; then echo "$CLEANLOOP_LOG_FILE (ultime 3 righe):"; grep '^|' "$CWD/$CLEANLOOP_LOG_FILE" | tail -3 | sed 's/^/  /'; fi
   if [ -f "$CWD/.cleanloop/logs/events.log" ]; then echo "eventi (ultimi 5, 'cleanloop log' per tutti):"; tail -5 "$CWD/.cleanloop/logs/events.log" | sed 's/^/  /'; fi
 }
 

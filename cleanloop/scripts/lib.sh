@@ -19,9 +19,10 @@ cleanloop_load_config() {
   : "${CLEANLOOP_CONTEXT_WINDOW:=}"     # vuoto = autodetect
   : "${CLEANLOOP_PROGRESS_FILE:=PROGRESS.md}"
   : "${CLEANLOOP_TASK_FILE:=TASK.md}"
+  : "${CLEANLOOP_LOG_FILE:=LOOPLOG.md}"      # log leggibile: una riga per uscita/ripartenza
   export CLEANLOOP_THRESHOLD CLEANLOOP_HARD CLEANLOOP_REMIND_EVERY CLEANLOOP_MAX_ITER \
          CLEANLOOP_STALL_LIMIT CLEANLOOP_PERMISSION_MODE CLEANLOOP_MODEL CLEANLOOP_MAX_BUDGET_USD \
-         CLEANLOOP_CONTEXT_WINDOW CLEANLOOP_PROGRESS_FILE CLEANLOOP_TASK_FILE
+         CLEANLOOP_CONTEXT_WINDOW CLEANLOOP_PROGRESS_FILE CLEANLOOP_TASK_FILE CLEANLOOP_LOG_FILE
 }
 
 # cleanloop è attivo in questo progetto? (loop in corso, oppure init eseguito)
@@ -72,5 +73,16 @@ cleanloop_last_ctx() {
   local f="$1/.cleanloop/state/last.json"
   [ -f "$f" ] && jq -r '"\(.pct) \(.used) \(.window) \(.session)"' "$f" 2>/dev/null || echo "0 0 0 -"
 }
+
+# LOOPLOG.md: tabella leggibile. cleanloop_looplog cwd "n" "pct" "used" "window" "motivo" "status"
+cleanloop_looplog() {
+  local cwd="$1" n="$2" pct="$3" used="$4" window="$5" reason="$6" status="$7" f
+  f="$cwd/$CLEANLOOP_LOG_FILE"
+  [ -f "$f" ] || printf '# LOOPLOG\n\nUna riga per ogni uscita di iterazione o ripartenza di sessione, con l%soccupazione della finestra di contesto in quel momento.\n\n| # | Ora | Contesto all%suscita | Motivo | STATUS |\n|---|---|---|---|---|\n' "'" "'" > "$f"
+  [ -z "$n" ] && return 0   # solo intestazione
+  printf '| %s | %s | %s%% (%s / %s) | %s | %s |\n' "$n" "$(date +%H:%M:%S)" "$pct" "$(cleanloop_fmt_num "$used")" "$(cleanloop_fmt_num "$window")" "$reason" "$status" >> "$f"
+}
+cleanloop_fmt_num() { awk -v n="$1" 'BEGIN{ s=n; out=""; while (length(s)>3) { out=" " substr(s,length(s)-2) out; s=substr(s,1,length(s)-3) } print s out }'; }
+cleanloop_status_of() { grep -Em1 '^STATUS:' "$1/$CLEANLOOP_PROGRESS_FILE" 2>/dev/null | sed -E 's/^STATUS:[[:space:]]*//; s/[[:space:]]*#.*//' | tr -d '\r'; }
 
 cleanloop_checksum() { [ -f "$1" ] && (md5 -q "$1" 2>/dev/null || md5sum "$1" | cut -d' ' -f1) || echo none; }

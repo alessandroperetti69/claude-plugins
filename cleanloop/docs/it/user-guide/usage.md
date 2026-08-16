@@ -27,7 +27,7 @@ Ogni iterazione è un processo `claude -p` separato con contesto vuoto. Dentro l
 - a **40%** chiede di fermarsi subito;
 - all'uscita l'hook `Stop` blocca la fine se `PROGRESS.md` non è stato modificato.
 
-Ogni avvio/uscita di iterazione, superamento di soglia e ripartenza viene registrato in `.cleanloop/logs/events.log` con la percentuale di contesto del momento (`cleanloop log`, vedi [formati](../technical/file-formats.md#cleanlooplogseventslog)).
+Ogni uscita di iterazione finisce in **`LOOPLOG.md`**, accanto a `TASK.md`/`PROGRESS.md`: una tabella con numero, ora e occupazione del contesto all'uscita (più motivo e STATUS). In interattivo vi compare anche ogni ripartenza con `/clear`/`/compact` (riga `↻`, con il contesto *prima* del riavvio). Il dettaglio macchina-leggibile è in `.cleanloop/logs/events.log` (`cleanloop log`, vedi [formati](../technical/file-formats.md#looplogmd)).
 
 Il loop si ferma per: `STATUS: DONE` · `STATUS: BLOCKED` (serve un umano) · **stallo** (3 iterazioni senza modifiche a `PROGRESS.md`) · massimo iterazioni. Vedi [codici di uscita](configuration.md#codici-di-uscita-del-runner).
 

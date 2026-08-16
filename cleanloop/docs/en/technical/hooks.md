@@ -15,11 +15,14 @@ Registered in `hooks/hooks.json`; each command is `bash "${CLAUDE_PLUGIN_ROOT}/s
 | `cleanloop_json_str` | stdin → escaped JSON string (via `jq -Rs`) |
 | `cleanloop_log cwd text…` | appends `<timestamp> text` to `cwd/.cleanloop/logs/events.log` |
 | `cleanloop_last_ctx cwd` | prints `pct used window session` from `state/last.json` (or `0 0 0 -`) |
+| `cleanloop_looplog cwd n pct used window reason status` | appends a row to `LOOPLOG.md` (creates the header if missing; with empty `n` creates the header only) |
+| `cleanloop_fmt_num n` | thousands separator with a space (`290 877`) |
+| `cleanloop_status_of cwd` | value of `STATUS:` in `PROGRESS.md` |
 
 ## SessionStart — `session-start.sh`
 - **Matcher**: `startup|resume|clear|compact`
 - **Input used**: `cwd`, `session_id`, `source`
-- **Effects**: records `event=session_start` in `events.log` with `prev_ctx` (last context measurement before the restart, from `state/last.json`); writes the initial checksum of `PROGRESS.md` to `state/<session>.start`; resets `<session>.level` and `<session>.count`.
+- **Effects**: if `source` is `clear`/`compact` and not in loop mode, appends the `↻` row to `LOOPLOG.md` with the context before the restart; records `event=session_start` in `events.log` with `prev_ctx` (last context measurement before the restart, from `state/last.json`); writes the initial checksum of `PROGRESS.md` to `state/<session>.start`; resets `<session>.level` and `<session>.count`.
 - **Output**: `hookSpecificOutput.additionalContext` with: mode (interactive / loop with iteration number), thresholds, one-line rules; if `source` is `clear`/`compact` it adds "do not reconstruct history, resume from the handoff"; then `TASK.md` (max 6000 bytes) and `PROGRESS.md` (max 8000 bytes). If `PROGRESS.md` is missing, it asks to create it from the template.
 
 ## PostToolUse — `context-guard.sh`

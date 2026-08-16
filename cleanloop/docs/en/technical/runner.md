@@ -50,7 +50,7 @@ Arguments passed to `claude`:
 
 Environment exported to the process: `CLEANLOOP_ACTIVE=1` (enables the Stop hook and the "end the turn" messages), `CLEANLOOP_ITER=i`, `CLEANLOOP_ROOT`.
 
-Events: `iter_start` before launching `claude`; `iter_end` afterwards, with duration, exit code, last context measurement (`state/last.json`), `reason` derived from the threshold level reached in the session, and `progress`/`status`; `loop_start`/`loop_stop` around the cycle. All in `.cleanloop/logs/events.log`.
+After each iteration it appends to `LOOPLOG.md` the row `| i | HH:MM:SS | pct% (used / window) | reason | STATUS |` (reason: natural end / threshold / hard threshold, plus `exit rc` if ≠ 0). Events: `iter_start` before launching `claude`; `iter_end` afterwards, with duration, exit code, last context measurement (`state/last.json`), `reason` derived from the threshold level reached in the session, and `progress`/`status`; `loop_start`/`loop_stop` around the cycle. All in `.cleanloop/logs/events.log`.
 
 Output: `claude` stdout+stderr `tee`'d to `.cleanloop/logs/iter-<NNN>-<YYYYmmdd-HHMMSS>.log`; the `claude` exit code is `PIPESTATUS[0]` and is only reported (it does not stop the loop: the decision is based on `PROGRESS.md` progress).
 

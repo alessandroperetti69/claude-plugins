@@ -59,6 +59,7 @@ Note: an empty line *inside* pasted text is read as a task separator; if your pr
 This creates:
 - `TASK.md` — task description (for you to complete)
 - `PROGRESS.md` — progress state (updated by Claude)
+- `LOOPLOG.md` — readable log: one row per iteration exit with time and context %
 - `.cleanloop/` — configuration (`config`), switch (`enabled`), state and logs
 
 > From now on the cleanloop hooks are active **in this folder**. In other projects they stay inert.

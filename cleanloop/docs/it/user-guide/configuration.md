@@ -18,6 +18,7 @@ Precedenza (dalla più alta): **variabile d'ambiente** → `.cleanloop/config` d
 | `CLEANLOOP_CONTEXT_WINDOW` | *(autodetect)* | token della finestra; se vuoto: 1.000.000 se il modello in `~/.claude/settings.json` contiene `[1m]`, altrimenti 200.000 |
 | `CLEANLOOP_PROGRESS_FILE` | `PROGRESS.md` | nome del file di avanzamento |
 | `CLEANLOOP_TASK_FILE` | `TASK.md` | nome del file del task |
+| `CLEANLOOP_LOG_FILE` | `LOOPLOG.md` | nome del log leggibile (tabella uscite/ripartenze) |
 | `CLEANLOOP_ACTIVE` | *(impostata dal runner)* | `1` = modalità loop: attiva lo `Stop` hook e i messaggi "termina il turno" |
 
 ### Scegliere le soglie
@@ -35,7 +36,7 @@ cleanloop add  ["testo"]          accoda un task (T<n>) a TASK.md; senza argomen
 cleanloop tasks                   elenca la coda con ✔ sui task spuntati nel Piano e "(+n righe)" per i task multiriga
 cleanloop run  [-n N]             loop fino a DONE/BLOCKED/stallo/max iterazioni
 cleanloop once                    una sola iterazione (= run -n 1)
-cleanloop status                  stato: attivo, STATUS, ITERATION, soglie, finestra, ultimo % contesto, ultimi log e ultimi 5 eventi
+cleanloop status                  stato: attivo, STATUS, ITERATION, soglie, finestra, ultimo % contesto, ultime righe di LOOPLOG.md e ultimi 5 eventi
 cleanloop log [-n N]              log eventi (avvii/uscite iterazioni, soglie, ripartenze) con % contesto; -n = ultime N righe
 cleanloop reset                   cancella .cleanloop/state (non tocca PROGRESS.md né i log)
 cleanloop disable                 rimuove .cleanloop/enabled: hook inerti nel progetto
@@ -55,6 +56,7 @@ cleanloop disable                 rimuove .cleanloop/enabled: hook inerti nel pr
 ```
 TASK.md                 task e definizione di fatto (tuo)
 PROGRESS.md             stato di avanzamento (Claude)
+LOOPLOG.md              log leggibile: una riga per uscita di iterazione / ripartenza, con % contesto
 .cleanloop/config       configurazione del progetto
 .cleanloop/enabled      interruttore: se esiste, gli hook sono attivi qui
 .cleanloop/state/       last.json (ultima misura del contesto), marker per sessione (livello, contatore, checksum iniziale)

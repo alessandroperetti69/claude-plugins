@@ -44,6 +44,22 @@ Expected sections (template in `templates/PROGRESS.md`):
 
 Constraints: ~40 lines max, **replace** rather than accumulate (the file is re-injected in full at every iteration, first 8000 bytes). An iteration's progress is detected via the file checksum: an iteration that does not modify it counts as a stall.
 
+## `LOOPLOG.md` (written by the runner and the SessionStart hook)
+Markdown table, one row per **iteration exit** (runner) or **interactive restart** (`/clear`, `/compact`; SessionStart hook, row `↻`):
+```markdown
+| # | Ora | Contesto all'uscita | Motivo | STATUS |
+|---|---|---|---|---|
+| 1 | 11:34:10 | 29% (290 877 / 1 000 000) | soglia (25%) | IN_PROGRESS |
+| ↻ | 12:02:41 | 31% (312 004 / 1 000 000) | /clear | IN_PROGRESS |
+| 2 | 12:20:03 | 12% (121 550 / 1 000 000) | fine naturale | DONE |
+```
+- `#`: iteration number (loop) or `↻` (interactive restart).
+- `Ora`: local `HH:MM:SS` at exit/restart.
+- `Contesto all'uscita`: percentage and `used / window` of the session's last measurement (for `↻`: the measurement *before* the restart).
+- `Motivo`: `fine naturale` (natural end), `soglia (N%)` (soft threshold), `soglia dura (N%)` (hard threshold), optionally `, exit <rc>`; or `/clear`, `/compact`.
+- `STATUS`: value in `PROGRESS.md` after the event.
+Created by `init` with the header only; name configurable via `CLEANLOOP_LOG_FILE`. Not injected into the context. Headings and reasons are in Italian.
+
 ## `CLAUDE.md`
 No format imposed by cleanloop. Rule: durable facts only (commands, conventions, constraints, environment gotchas), 1-3 lines per checkpoint, never progress state.
 

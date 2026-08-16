@@ -12,7 +12,7 @@
       "name": "cleanloop",
       "source": "./cleanloop",
       "description": "Contesto sotto soglia (25%): checkpoint su PROGRESS.md/CLAUDE.md, contesto pulito, loop a sessioni fresche fino a DONE.",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "category": "productivity",
       "keywords": [
         "context",

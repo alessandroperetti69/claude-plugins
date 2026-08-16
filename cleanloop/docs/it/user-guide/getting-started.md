@@ -59,6 +59,7 @@ Nota: una riga vuota *dentro* un testo incollato viene interpretata come separat
 Vengono creati:
 - `TASK.md` — descrizione del task (da completare)
 - `PROGRESS.md` — stato di avanzamento (lo aggiorna Claude)
+- `LOOPLOG.md` — log leggibile: una riga per ogni uscita di iterazione con ora e % di contesto
 - `.cleanloop/` — configurazione (`config`), interruttore (`enabled`), stato e log
 
 > Da questo momento gli hook di cleanloop sono attivi **in questa cartella**. Negli altri progetti restano inerti.

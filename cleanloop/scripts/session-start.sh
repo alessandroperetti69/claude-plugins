@@ -12,6 +12,9 @@ source=$(printf '%s' "$input" | jq -r '.source // "startup"')
 state=$(cleanloop_state_dir "$cwd")
 read -r prev_pct prev_used prev_window prev_session <<< "$(cleanloop_last_ctx "$cwd")"
 mode_label=interactive; [ "${CLEANLOOP_ACTIVE:-0}" = "1" ] && mode_label="loop iter=${CLEANLOOP_ITER:-?}"
+case "$source" in clear|compact)
+  [ "${CLEANLOOP_ACTIVE:-0}" = "1" ] || cleanloop_looplog "$cwd" "↻" "$prev_pct" "$prev_used" "$prev_window" "/$source" "$(cleanloop_status_of "$cwd" || echo '?')" ;;
+esac
 cleanloop_log "$cwd" "event=session_start source=$source mode=$mode_label session=$session prev_ctx=${prev_pct}% prev_used=$prev_used prev_session=$prev_session"
 cleanloop_checksum "$cwd/$CLEANLOOP_PROGRESS_FILE" > "$state/$session.start"
 rm -f "$state/$session.level" "$state/$session.count"

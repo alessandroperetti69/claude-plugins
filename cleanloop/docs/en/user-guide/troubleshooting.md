@@ -14,7 +14,7 @@ By design they are inert until the project is enabled: you need `.cleanloop/enab
 - `cleanloop status` shows the last measurement (`.cleanloop/state/last.json`).
 
 ### I want to see when and why iterations ended
-`cleanloop log` (or `-n 20`): for each iteration `iter_end` reports duration, `ctx=` (context percentage at exit) and `reason=` (`natural_end`, `soft_threshold`, `hard_threshold`); each `session_start` reports `prev_ctx=`, i.e. the percentage before the restart. This also covers interactive sessions with `/clear`.
+Open `LOOPLOG.md` in the project: one row per iteration with time, context at exit, reason and STATUS (and `↻` rows for interactive `/clear`). For details, `cleanloop log` (or `-n 20`): for each iteration `iter_end` reports duration, `ctx=` (context percentage at exit) and `reason=` (`natural_end`, `soft_threshold`, `hard_threshold`); each `session_start` reports `prev_ctx=`, i.e. the percentage before the restart. This also covers interactive sessions with `/clear`.
 
 ### The loop stops for "stall"
 Three consecutive iterations did not modify `PROGRESS.md`. Typical causes:

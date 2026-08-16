@@ -43,6 +43,22 @@ Sezioni attese (template in `templates/PROGRESS.md`):
 
 Vincoli: ~40 righe massime, **sostituire** non accumulare (il file è reiniettato integralmente a ogni iterazione, primi 8000 byte). Il progresso di un'iterazione è rilevato tramite checksum del file: un'iterazione che non lo modifica conta come stallo.
 
+## `LOOPLOG.md` (scritto dal runner e dall'hook SessionStart)
+Tabella Markdown, una riga per **uscita di iterazione** (runner) o **ripartenza interattiva** (`/clear`, `/compact`; hook SessionStart, riga `↻`):
+```markdown
+| # | Ora | Contesto all'uscita | Motivo | STATUS |
+|---|---|---|---|---|
+| 1 | 11:34:10 | 29% (290 877 / 1 000 000) | soglia (25%) | IN_PROGRESS |
+| ↻ | 12:02:41 | 31% (312 004 / 1 000 000) | /clear | IN_PROGRESS |
+| 2 | 12:20:03 | 12% (121 550 / 1 000 000) | fine naturale | DONE |
+```
+- `#`: numero dell'iterazione (loop) o `↻` (ripartenza interattiva).
+- `Ora`: `HH:MM:SS` locale al momento dell'uscita/ripartenza.
+- `Contesto all'uscita`: percentuale e `usati / finestra` dell'ultima misura della sessione (per `↻`: la misura *prima* del riavvio).
+- `Motivo`: `fine naturale`, `soglia (N%)`, `soglia dura (N%)`, eventualmente `, exit <rc>`; oppure `/clear`, `/compact`.
+- `STATUS`: valore in `PROGRESS.md` dopo l'evento.
+Il file è creato da `init` con la sola intestazione; nome configurabile con `CLEANLOOP_LOG_FILE`. Non viene iniettato nel contesto.
+
 ## `CLAUDE.md`
 Non ha un formato imposto da cleanloop. Regola: solo fatti durevoli (comandi, convenzioni, vincoli, gotcha dell'ambiente), 1-3 righe per checkpoint, mai stato di avanzamento.
 

@@ -27,7 +27,7 @@ Each iteration is a separate `claude -p` process with an empty context. Inside t
 - at **40%** it asks to stop immediately;
 - on exit the `Stop` hook blocks termination if `PROGRESS.md` was not modified.
 
-Every iteration start/end, threshold crossing and restart is recorded in `.cleanloop/logs/events.log` with the context percentage at that moment (`cleanloop log`, see [formats](../technical/file-formats.md#cleanlooplogseventslog)).
+Every iteration exit lands in **`LOOPLOG.md`**, next to `TASK.md`/`PROGRESS.md`: a table with number, time and context usage at exit (plus reason and STATUS). In interactive mode it also records each restart via `/clear`/`/compact` (row `↻`, with the context *before* the restart). The machine-readable detail is in `.cleanloop/logs/events.log` (`cleanloop log`, see [formats](../technical/file-formats.md#looplogmd)).
 
 The loop stops on: `STATUS: DONE` · `STATUS: BLOCKED` (a human is needed) · **stall** (3 iterations without changes to `PROGRESS.md`) · maximum iterations. See [exit codes](configuration.md#runner-exit-codes).
 

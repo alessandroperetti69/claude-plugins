@@ -18,6 +18,7 @@ Precedence (highest first): **environment variable** → project `.cleanloop/con
 | `CLEANLOOP_CONTEXT_WINDOW` | *(autodetect)* | window tokens; if empty: 1,000,000 when the model in `~/.claude/settings.json` contains `[1m]`, otherwise 200,000 |
 | `CLEANLOOP_PROGRESS_FILE` | `PROGRESS.md` | progress file name |
 | `CLEANLOOP_TASK_FILE` | `TASK.md` | task file name |
+| `CLEANLOOP_LOG_FILE` | `LOOPLOG.md` | name of the readable log (exits/restarts table) |
 | `CLEANLOOP_ACTIVE` | *(set by the runner)* | `1` = loop mode: enables the `Stop` hook and the "end the turn" messages |
 
 ### Choosing thresholds
@@ -35,7 +36,7 @@ cleanloop add  ["text"]           appends a task (T<n>) to TASK.md; without argu
 cleanloop tasks                   lists the queue with ✔ on tasks ticked in the Plan and "(+n righe)" for multi-line tasks
 cleanloop run  [-n N]             loop until DONE/BLOCKED/stall/max iterations
 cleanloop once                    a single iteration (= run -n 1)
-cleanloop status                  state: active, STATUS, ITERATION, thresholds, window, last context %, latest logs and last 5 events
+cleanloop status                  state: active, STATUS, ITERATION, thresholds, window, last context %, last LOOPLOG.md rows and last 5 events
 cleanloop log [-n N]              event log (iteration starts/ends, thresholds, restarts) with context %; -n = last N lines
 cleanloop reset                   deletes .cleanloop/state (leaves PROGRESS.md and logs untouched)
 cleanloop disable                 removes .cleanloop/enabled: hooks inert in the project
@@ -55,6 +56,7 @@ cleanloop disable                 removes .cleanloop/enabled: hooks inert in the
 ```
 TASK.md                 task and definition of done (yours)
 PROGRESS.md             progress state (Claude's)
+LOOPLOG.md              readable log: one row per iteration exit / restart, with context %
 .cleanloop/config       project configuration
 .cleanloop/enabled      switch: if present, hooks are active here
 .cleanloop/state/       last.json (last context measurement), per-session markers (level, counter, initial checksum)

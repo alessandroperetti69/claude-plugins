@@ -4,6 +4,11 @@ All notable changes to cleanloop are documented here. Format: [Keep a Changelog]
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-08-16
+### Added
+- `LOOPLOG.md` next to `TASK.md`/`PROGRESS.md`: readable table with one row per iteration exit (`# | Ora | Contesto all'uscita | Motivo | STATUS`), plus `↻` rows for interactive `/clear`/`/compact` restarts with the context before the restart. Created by `init`; name via `CLEANLOOP_LOG_FILE`.
+- `cleanloop status` shows the last `LOOPLOG.md` rows.
+
 ## [0.3.0] — 2026-08-16
 ### Added
 - Event log `.cleanloop/logs/events.log`: `loop_start`, `iter_start`, `session_start` (with `prev_ctx`, the context % before the restart), `threshold` (soft/hard), `iter_end` (duration, exit code, context %, reason, progress, status), `loop_stop` (reason). Written by the runner and by the hooks, so it also covers interactive sessions with `/clear`.
