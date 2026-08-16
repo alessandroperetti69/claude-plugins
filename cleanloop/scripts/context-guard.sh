@@ -40,8 +40,11 @@ checkpoint_steps="PROTOCOLLO CHECKPOINT (skill cleanloop):
 3. Se hai scoperto fatti DUREVOLI sul progetto (convenzioni, comandi, vincoli) aggiungili a CLAUDE.md in 1-3 righe. Niente log di sessione in CLAUDE.md.
 4. Se il task è completo scrivi STATUS: DONE; se sei bloccato STATUS: BLOCKED con il motivo."
 
+mode_label=interactive; [ $loop_mode = 1 ] && mode_label="loop iter=${CLEANLOOP_ITER:-?}"
+
 if [ "$pct" -ge "$CLEANLOOP_HARD" ] && [ "$level" -lt 2 ]; then
   echo 2 > "$level_file"; echo 0 > "$count_file"
+  cleanloop_log "$cwd" "event=threshold level=hard ctx=${pct}% used=$used window=$window mode=$mode_label session=$session"
   if [ $loop_mode = 1 ]; then
     emit "[cleanloop] CONTESTO AL ${pct}% (soglia dura ${CLEANLOOP_HARD}%). FERMATI ORA: nessun nuovo sotto-task. Esegui il protocollo checkpoint e TERMINA IL TURNO (rispondi con un riepilogo di 3 righe). Il loop riparte con contesto pulito da $progress.
 $checkpoint_steps" "cleanloop: contesto ${pct}% ≥ ${CLEANLOOP_HARD}% — chiusura iterazione forzata"
@@ -55,6 +58,7 @@ fi
 if [ "$pct" -ge "$CLEANLOOP_THRESHOLD" ]; then
   if [ "$level" -lt 1 ]; then
     echo 1 > "$level_file"; echo 0 > "$count_file"
+    cleanloop_log "$cwd" "event=threshold level=soft ctx=${pct}% used=$used window=$window mode=$mode_label session=$session"
     if [ $loop_mode = 1 ]; then
       emit "[cleanloop] CONTESTO AL ${pct}% (soglia ${CLEANLOOP_THRESHOLD}%). Concludi SOLO il sotto-task corrente (niente di nuovo), poi esegui il protocollo checkpoint e TERMINA IL TURNO. Il loop riparte con contesto pulito da $progress.
 $checkpoint_steps" "cleanloop: contesto ${pct}% ≥ ${CLEANLOOP_THRESHOLD}% — checkpoint richiesto"

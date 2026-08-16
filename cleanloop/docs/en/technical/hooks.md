@@ -13,11 +13,13 @@ Registered in `hooks/hooks.json`; each command is `bash "${CLAUDE_PLUGIN_ROOT}/s
 | `cleanloop_checksum file` | `md5 -q` (macOS) or `md5sum` (Linux); `none` if the file is missing |
 | `cleanloop_state_dir cwd` | creates and returns `cwd/.cleanloop/state` |
 | `cleanloop_json_str` | stdin → escaped JSON string (via `jq -Rs`) |
+| `cleanloop_log cwd text…` | appends `<timestamp> text` to `cwd/.cleanloop/logs/events.log` |
+| `cleanloop_last_ctx cwd` | prints `pct used window session` from `state/last.json` (or `0 0 0 -`) |
 
 ## SessionStart — `session-start.sh`
 - **Matcher**: `startup|resume|clear|compact`
 - **Input used**: `cwd`, `session_id`, `source`
-- **Effects**: writes the initial checksum of `PROGRESS.md` to `state/<session>.start`; resets `<session>.level` and `<session>.count`.
+- **Effects**: records `event=session_start` in `events.log` with `prev_ctx` (last context measurement before the restart, from `state/last.json`); writes the initial checksum of `PROGRESS.md` to `state/<session>.start`; resets `<session>.level` and `<session>.count`.
 - **Output**: `hookSpecificOutput.additionalContext` with: mode (interactive / loop with iteration number), thresholds, one-line rules; if `source` is `clear`/`compact` it adds "do not reconstruct history, resume from the handoff"; then `TASK.md` (max 6000 bytes) and `PROGRESS.md` (max 8000 bytes). If `PROGRESS.md` is missing, it asks to create it from the template.
 
 ## PostToolUse — `context-guard.sh`
@@ -25,8 +27,8 @@ Registered in `hooks/hooks.json`; each command is `bash "${CLAUDE_PLUGIN_ROOT}/s
 - **Input used**: `cwd`, `session_id`, `transcript_path`
 - **Per-session state**: `state/<session>.level` (0 = no warning, 1 = soft threshold, 2 = hard), `state/<session>.count` (tool calls since the warning), `state/last.json` (`{session, used, window, pct, ts}` — read by `cleanloop status`).
 - **Logic**:
-  1. `pct ≥ HARD` and `level < 2` → forced-close message, `level=2`.
-  2. else `pct ≥ THRESHOLD` and `level < 1` → checkpoint message, `level=1`.
+  1. `pct ≥ HARD` and `level < 2` → forced-close message, `level=2`, `event=threshold level=hard` in the log.
+  2. else `pct ≥ THRESHOLD` and `level < 1` → checkpoint message, `level=1`, `event=threshold level=soft` in the log.
   3. else if `level ≥ 1` → `count++`; every `CLEANLOOP_REMIND_EVERY` sends a short reminder.
 - **Text**: depends on the mode. Loop (`CLEANLOOP_ACTIVE=1`): "…run the checkpoint protocol and END THE TURN". Interactive: "…then ask the user to run /clear and resume with /cleanloop". Both append the 4-point checkpoint protocol.
 - **Output**: `{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":…},"systemMessage":…}` — `additionalContext` goes to the model, `systemMessage` is the short line shown to the user.

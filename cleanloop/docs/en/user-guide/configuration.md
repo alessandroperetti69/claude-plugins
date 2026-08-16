@@ -35,7 +35,8 @@ cleanloop add  ["text"]           appends a task (T<n>) to TASK.md; without argu
 cleanloop tasks                   lists the queue with ✔ on tasks ticked in the Plan and "(+n righe)" for multi-line tasks
 cleanloop run  [-n N]             loop until DONE/BLOCKED/stall/max iterations
 cleanloop once                    a single iteration (= run -n 1)
-cleanloop status                  state: active, STATUS, ITERATION, thresholds, window, last context %, latest logs
+cleanloop status                  state: active, STATUS, ITERATION, thresholds, window, last context %, latest logs and last 5 events
+cleanloop log [-n N]              event log (iteration starts/ends, thresholds, restarts) with context %; -n = last N lines
 cleanloop reset                   deletes .cleanloop/state (leaves PROGRESS.md and logs untouched)
 cleanloop disable                 removes .cleanloop/enabled: hooks inert in the project
 ```
@@ -57,6 +58,6 @@ PROGRESS.md             progress state (Claude's)
 .cleanloop/config       project configuration
 .cleanloop/enabled      switch: if present, hooks are active here
 .cleanloop/state/       last.json (last context measurement), per-session markers (level, counter, initial checksum)
-.cleanloop/logs/        iter-NNN-<timestamp>.log, one per iteration
+.cleanloop/logs/        iter-NNN-<timestamp>.log (output of each iteration) and events.log (event log)
 ```
 `state/` and `logs/` are added to `.gitignore` by `init` (if the project is a git repo).

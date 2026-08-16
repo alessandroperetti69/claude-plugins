@@ -13,6 +13,9 @@ By design they are inert until the project is enabled: you need `.cleanloop/enab
 - The measurement comes from the `usage` of the last assistant message in the transcript (`input + cache_creation + cache_read`), refreshed at every tool call: right after `/clear` it may show the old value until the first tool call runs.
 - `cleanloop status` shows the last measurement (`.cleanloop/state/last.json`).
 
+### I want to see when and why iterations ended
+`cleanloop log` (or `-n 20`): for each iteration `iter_end` reports duration, `ctx=` (context percentage at exit) and `reason=` (`natural_end`, `soft_threshold`, `hard_threshold`); each `session_start` reports `prev_ctx=`, i.e. the percentage before the restart. This also covers interactive sessions with `/clear`.
+
 ### The loop stops for "stall"
 Three consecutive iterations did not modify `PROGRESS.md`. Typical causes:
 - permissions denied in `-p` (look at the latest log in `.cleanloop/logs/`): add permissions to the project's `.claude/settings.json`;

@@ -6,7 +6,8 @@
 #   cleanloop.sh tasks                    elenca la coda dei task con lo stato
 #   cleanloop.sh run   [-n MAX_ITER]      esegue il loop finché STATUS: DONE/BLOCKED, max iter o stallo
 #   cleanloop.sh once                     una sola iterazione
-#   cleanloop.sh status                   stato corrente (STATUS, iterazione, ultimo % contesto)
+#   cleanloop.sh status                   stato corrente (STATUS, iterazione, ultimo % contesto, ultimi eventi)
+#   cleanloop.sh log   [-n N]             log eventi: avvii/uscite iterazioni, soglie, ripartenze, con % contesto
 #   cleanloop.sh reset                    azzera stato hook (non tocca PROGRESS.md)
 #   cleanloop.sh disable                  disattiva gli hook nel progetto (rimuove .cleanloop/enabled)
 set -u
@@ -14,7 +15,7 @@ set -u
 CWD="$PWD"
 cleanloop_load_config "$CWD"
 
-usage() { sed -n '2,12p' "$0"; exit 1; }
+usage() { sed -n '2,13p' "$0"; exit 1; }
 say() { printf '\033[36m[cleanloop]\033[0m %s\n' "$*"; }
 die() { printf '\033[31m[cleanloop]\033[0m %s\n' "$*" >&2; exit "${2:-1}"; }
 
@@ -180,9 +181,16 @@ run_iteration() {  # $1 = numero iterazione
   [ -n "$CLEANLOOP_MAX_BUDGET_USD" ] && args+=( --max-budget-usd "$CLEANLOOP_MAX_BUDGET_USD" )
   local prompt="Iterazione $i/$CLEANLOOP_MAX_ITER di cleanloop. Il task è in $CLEANLOOP_TASK_FILE, lo stato in $CLEANLOOP_PROGRESS_FILE (entrambi già iniettati nel contesto). Riparti dal 'Prossimo passo (handoff)', completa e verifica UN sotto-task, aggiorna $CLEANLOOP_PROGRESS_FILE, termina."
   say "iterazione $i/$CLEANLOOP_MAX_ITER — log: ${log#$CWD/}"
+  cleanloop_log "$CWD" "event=iter_start iter=$i model=${CLEANLOOP_MODEL:-default} threshold=${CLEANLOOP_THRESHOLD}% hard=${CLEANLOOP_HARD}%"
+  local t0=$SECONDS
   CLEANLOOP_ACTIVE=1 CLEANLOOP_ITER="$i" CLEANLOOP_ROOT="$CLEANLOOP_ROOT" \
     claude "${args[@]}" "$prompt" 2>&1 | tee "$log"
-  return "${PIPESTATUS[0]}"
+  local rc="${PIPESTATUS[0]}" pct used win sess lvl reason
+  read -r pct used win sess <<< "$(cleanloop_last_ctx "$CWD")"
+  lvl=$(cat "$CWD/.cleanloop/state/$sess.level" 2>/dev/null || echo 0)
+  case "$lvl" in 2) reason=hard_threshold ;; 1) reason=soft_threshold ;; *) reason=natural_end ;; esac
+  ITER_END_LINE="event=iter_end iter=$i exit=$rc dur=$((SECONDS-t0))s ctx=${pct}% used=$used window=$win reason=$reason session=$sess"
+  return "$rc"
 }
 
 cmd_run() {
@@ -197,10 +205,11 @@ cmd_run() {
 
   local stall=0 i start_iter
   start_iter=$(( $(iter_of 2>/dev/null | grep -E '^[0-9]+$' || echo 0) + 1 ))
+  cleanloop_log "$CWD" "event=loop_start start_iter=$start_iter max_iter=$max window=$(cleanloop_context_window)"
   for (( i=start_iter; i<start_iter+max; i++ )); do
     case "$(status_of)" in
-      DONE)    say "STATUS: DONE — task completato in $((i-1)) iterazioni"; return 0 ;;
-      BLOCKED) say "STATUS: BLOCKED — serve intervento umano (vedi $CLEANLOOP_PROGRESS_FILE)"; return 3 ;;
+      DONE)    cleanloop_log "$CWD" "event=loop_stop reason=done iters=$((i-start_iter))"; say "STATUS: DONE — task completato in $((i-1)) iterazioni"; return 0 ;;
+      BLOCKED) cleanloop_log "$CWD" "event=loop_stop reason=blocked iters=$((i-start_iter))"; say "STATUS: BLOCKED — serve intervento umano (vedi $CLEANLOOP_PROGRESS_FILE)"; return 3 ;;
     esac
     local before after
     before=$(checksum "$CWD/$CLEANLOOP_PROGRESS_FILE")
@@ -208,13 +217,14 @@ cmd_run() {
     after=$(checksum "$CWD/$CLEANLOOP_PROGRESS_FILE")
     [ $rc -ne 0 ] && say "claude è uscito con codice $rc"
     if [ "$before" = "$after" ]; then
-      stall=$((stall+1)); say "nessuna modifica a $CLEANLOOP_PROGRESS_FILE ($stall/$CLEANLOOP_STALL_LIMIT)"
-      [ $stall -ge "$CLEANLOOP_STALL_LIMIT" ] && die "stallo: $CLEANLOOP_STALL_LIMIT iterazioni senza progresso" 2
-    else stall=0; fi
+      stall=$((stall+1)); cleanloop_log "$CWD" "$ITER_END_LINE progress=unchanged status=$(status_of) stall=$stall"
+      say "nessuna modifica a $CLEANLOOP_PROGRESS_FILE ($stall/$CLEANLOOP_STALL_LIMIT)"
+      [ $stall -ge "$CLEANLOOP_STALL_LIMIT" ] && { cleanloop_log "$CWD" "event=loop_stop reason=stall iters=$((i-start_iter+1))"; die "stallo: $CLEANLOOP_STALL_LIMIT iterazioni senza progresso" 2; }
+    else stall=0; cleanloop_log "$CWD" "$ITER_END_LINE progress=changed status=$(status_of)"; fi
   done
   case "$(status_of)" in
-    DONE) say "STATUS: DONE"; return 0 ;;
-    *) say "raggiunto il massimo di $max iterazioni — STATUS: $(status_of)"; return 4 ;;
+    DONE) cleanloop_log "$CWD" "event=loop_stop reason=done iters=$max"; say "STATUS: DONE"; return 0 ;;
+    *) cleanloop_log "$CWD" "event=loop_stop reason=max_iter iters=$max"; say "raggiunto il massimo di $max iterazioni — STATUS: $(status_of)"; return 4 ;;
   esac
 }
 
@@ -226,7 +236,15 @@ cmd_status() {
   if [ -f "$CWD/.cleanloop/state/last.json" ]; then
     echo "ultimo ctx: $(jq -r '"\(.pct)% (\(.used)/\(.window)) alle \(.ts)"' "$CWD/.cleanloop/state/last.json")"
   fi
-  ls "$CWD/.cleanloop/logs" 2>/dev/null | tail -3 | sed 's/^/log:        /'
+  ls "$CWD/.cleanloop/logs" 2>/dev/null | grep '^iter-' | tail -3 | sed 's/^/log:        /'
+  if [ -f "$CWD/.cleanloop/logs/events.log" ]; then echo "eventi (ultimi 5, 'cleanloop log' per tutti):"; tail -5 "$CWD/.cleanloop/logs/events.log" | sed 's/^/  /'; fi
+}
+
+cmd_log() {
+  local n=""; while [ $# -gt 0 ]; do case "$1" in -n) n="$2"; shift 2;; *) shift;; esac; done
+  local f="$CWD/.cleanloop/logs/events.log"
+  [ -f "$f" ] || die "nessun log eventi in $f"
+  if [ -n "$n" ]; then tail -n "$n" "$f"; else cat "$f"; fi
 }
 
 case "${1:-}" in
@@ -236,6 +254,7 @@ case "${1:-}" in
   run)     shift; cmd_run "$@" ;;
   once)    shift; cmd_run -n 1 ;;
   status)  cmd_status ;;
+  log)     shift; cmd_log "$@" ;;
   reset)   rm -rf "$CWD/.cleanloop/state"; say "stato azzerato" ;;
   disable) rm -f "$CWD/.cleanloop/enabled"; say "hook disattivati in questo progetto" ;;
   *) usage ;;

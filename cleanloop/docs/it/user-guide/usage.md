@@ -27,6 +27,8 @@ Ogni iterazione è un processo `claude -p` separato con contesto vuoto. Dentro l
 - a **40%** chiede di fermarsi subito;
 - all'uscita l'hook `Stop` blocca la fine se `PROGRESS.md` non è stato modificato.
 
+Ogni avvio/uscita di iterazione, superamento di soglia e ripartenza viene registrato in `.cleanloop/logs/events.log` con la percentuale di contesto del momento (`cleanloop log`, vedi [formati](../technical/file-formats.md#cleanlooplogseventslog)).
+
 Il loop si ferma per: `STATUS: DONE` · `STATUS: BLOCKED` (serve un umano) · **stallo** (3 iterazioni senza modifiche a `PROGRESS.md`) · massimo iterazioni. Vedi [codici di uscita](configuration.md#codici-di-uscita-del-runner).
 
 ### Sessione interattiva (`claude` + `/cleanloop`)

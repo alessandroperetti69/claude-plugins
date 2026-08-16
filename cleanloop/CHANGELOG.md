@@ -4,6 +4,11 @@ All notable changes to cleanloop are documented here. Format: [Keep a Changelog]
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-08-16
+### Added
+- Event log `.cleanloop/logs/events.log`: `loop_start`, `iter_start`, `session_start` (with `prev_ctx`, the context % before the restart), `threshold` (soft/hard), `iter_end` (duration, exit code, context %, reason, progress, status), `loop_stop` (reason). Written by the runner and by the hooks, so it also covers interactive sessions with `/clear`.
+- `cleanloop log [-n N]`; `cleanloop status` shows the last 5 events.
+
 ## [0.2.1] — 2026-08-16
 ### Changed
 - Wizard and interactive `add` accept **multi-line tasks** (paste-friendly): an empty line moves to the next task, a lone `.` (or Ctrl-D) ends the list. Continuation lines are stored indented under the bullet in `TASK.md`; `tasks` shows `(+n righe)`.

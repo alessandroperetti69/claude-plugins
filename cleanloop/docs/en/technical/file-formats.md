@@ -63,3 +63,23 @@ Empty file; its existence enables the hooks in the project.
 
 ## `.cleanloop/logs/`
 `iter-<NNN>-<YYYYmmdd-HHMMSS>.log`: full `claude -p` output for iteration `NNN`.
+
+## `.cleanloop/logs/events.log`
+One line per event, `<ISO-8601> event=<type> key=value …`, written by the runner and by the hooks (hence also in interactive sessions). Read with `cleanloop log [-n N]`; the last 5 appear in `cleanloop status`.
+
+| Event | Who | Fields | Meaning |
+|---|---|---|---|
+| `loop_start` | runner | `start_iter max_iter window` | `run` started |
+| `iter_start` | runner | `iter model threshold hard` | iteration started |
+| `session_start` | SessionStart hook | `source mode session prev_ctx prev_used prev_session` | session start/restart; **`prev_ctx`** is the context percentage of the last measurement before the restart (previous session, or the one just cleared with `/clear`) |
+| `threshold` | PostToolUse hook | `level=soft\|hard ctx used window mode session` | first crossing of a threshold in a session |
+| `iter_end` | runner | `iter exit dur ctx used window reason progress status [stall]` | iteration ended: `ctx` = last measurement of the session, `reason` = `natural_end` / `soft_threshold` / `hard_threshold`, `progress` = `changed`/`unchanged` |
+| `loop_stop` | runner | `reason=done\|blocked\|stall\|max_iter iters` | `run` ended |
+
+Example:
+```
+2026-08-16T11:31:18 event=iter_start iter=3 model=default threshold=25% hard=40%
+2026-08-16T11:31:18 event=session_start source=startup mode=loop iter=3 session=3a25… prev_ctx=27% prev_used=271204 prev_session=9f1c…
+2026-08-16T11:33:02 event=threshold level=soft ctx=26% used=262110 window=1000000 mode=loop iter=3 session=3a25…
+2026-08-16T11:34:10 event=iter_end iter=3 exit=0 dur=172s ctx=29% used=290877 window=1000000 reason=soft_threshold session=3a25… progress=changed status=IN_PROGRESS
+```

@@ -61,4 +61,16 @@ cleanloop_json_str() { jq -Rs . ; }
 
 cleanloop_state_dir() { local d="${1:-$PWD}/.cleanloop/state"; mkdir -p "$d"; echo "$d"; }
 
+# Log eventi: una riga per evento in .cleanloop/logs/events.log
+cleanloop_log() {  # $1=cwd  $2...=testo
+  local cwd="$1"; shift
+  mkdir -p "$cwd/.cleanloop/logs"
+  printf '%s %s\n' "$(date +%FT%T)" "$*" >> "$cwd/.cleanloop/logs/events.log"
+}
+# Ultima misura del contesto: stampa "pct used window session" (o "0 0 0 -")
+cleanloop_last_ctx() {
+  local f="$1/.cleanloop/state/last.json"
+  [ -f "$f" ] && jq -r '"\(.pct) \(.used) \(.window) \(.session)"' "$f" 2>/dev/null || echo "0 0 0 -"
+}
+
 cleanloop_checksum() { [ -f "$1" ] && (md5 -q "$1" 2>/dev/null || md5sum "$1" | cut -d' ' -f1) || echo none; }

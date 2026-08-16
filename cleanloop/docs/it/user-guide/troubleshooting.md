@@ -13,6 +13,9 @@ Per design sono inerti finché il progetto non è attivato: serve `.cleanloop/en
 - La misura è presa dall'`usage` dell'ultimo messaggio dell'assistente nel transcript (`input + cache_creation + cache_read`), aggiornata a ogni tool call: subito dopo `/clear` può risultare la misura vecchia finché non parte la prima tool call.
 - `cleanloop status` mostra l'ultima misura (`.cleanloop/state/last.json`).
 
+### Voglio vedere quando e perché le iterazioni sono terminate
+`cleanloop log` (o `-n 20`): per ogni iterazione `iter_end` riporta durata, `ctx=` (percentuale di contesto all'uscita) e `reason=` (`natural_end`, `soft_threshold`, `hard_threshold`); ogni `session_start` riporta `prev_ctx=`, cioè la percentuale prima del riavvio. Vale anche per le sessioni interattive con `/clear`.
+
 ### Il loop si ferma per "stallo"
 Tre iterazioni consecutive non hanno modificato `PROGRESS.md`. Cause tipiche:
 - permessi negati in `-p` (guarda l'ultimo log in `.cleanloop/logs/`): aggiungi permessi nel `.claude/settings.json` del progetto;

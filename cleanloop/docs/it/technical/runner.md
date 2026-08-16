@@ -50,6 +50,8 @@ Argomenti passati a `claude`:
 
 Ambiente esportato al processo: `CLEANLOOP_ACTIVE=1` (attiva Stop hook e messaggi "termina il turno"), `CLEANLOOP_ITER=i`, `CLEANLOOP_ROOT`.
 
+Eventi: `iter_start` prima di lanciare `claude`; `iter_end` dopo, con durata, exit code, ultima misura di contesto (`state/last.json`), `reason` derivato dal livello di soglia raggiunto nella sessione, e `progress`/`status`; `loop_start`/`loop_stop` intorno al ciclo. Tutto in `.cleanloop/logs/events.log`.
+
 Output: stdout+stderr di `claude` in `tee` su `.cleanloop/logs/iter-<NNN>-<YYYYmmdd-HHMMSS>.log`; il codice di uscita di `claude` è quello di `PIPESTATUS[0]` e viene solo segnalato (non interrompe il loop: la decisione è basata sul progresso di `PROGRESS.md`).
 
 ### `status`, `reset`, `disable`
