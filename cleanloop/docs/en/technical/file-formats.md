@@ -19,7 +19,7 @@
 ```
 Section headings are Italian (the runner greps for `## Task` and `## Definizione`); content can be in any language.
 - `## Obiettivo`: the first non-empty line is copied into the `PROGRESS.md` Goal by `init`.
-- `## Task`: **ordered queue**; each line `- [ ] T<n>: text`. The runner (`add`) appends with id = max+1; `tasks` reads checkbox lines up to `## Definizione`. The model does not edit this section (at most ticks it); the user may, at any time.
+- `## Task`: **ordered queue**; each task starts with `- [ ] T<n>: first line`; further lines of the task are indented by 6 spaces (Markdown list continuation). The runner (`add`) appends with id = max+1; `tasks` reads checkbox lines up to `## Definizione`. The model does not edit this section (at most ticks it); the user may, at any time.
 - `## Definizione di fatto`: checkboxes the model must verify before writing `STATUS: DONE`.
 
 Injected by the `SessionStart` hook (first 6000 bytes).

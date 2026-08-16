@@ -30,8 +30,9 @@ La soglia è una percentuale della finestra: con un modello a 1M token, 25% = 25
 ```
 cleanloop init [--task "testo"]   crea TASK.md, PROGRESS.md, .cleanloop/{config,enabled,state,logs}; aggiorna .gitignore.
                                   Da terminale senza --task: wizard (obiettivo, task uno per riga, vincoli)
-cleanloop add  ["testo"]          accoda un task (T<n>) a TASK.md; senza argomento: uno per riga, invio vuoto per finire
-cleanloop tasks                   elenca la coda con ✔ sui task spuntati nel Piano di PROGRESS.md
+cleanloop add  ["testo"]          accoda un task (T<n>) a TASK.md; senza argomento: interattivo (task anche multiriga:
+                                  riga vuota = successivo, "." da sola = fine)
+cleanloop tasks                   elenca la coda con ✔ sui task spuntati nel Piano e "(+n righe)" per i task multiriga
 cleanloop run  [-n N]             loop fino a DONE/BLOCKED/stallo/max iterazioni
 cleanloop once                    una sola iterazione (= run -n 1)
 cleanloop status                  stato: attivo, STATUS, ITERATION, soglie, finestra, ultimo % contesto, ultimi log

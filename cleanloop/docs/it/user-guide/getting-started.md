@@ -37,18 +37,23 @@ Nella radice del progetto su cui vuoi lavorare:
 ```bash
 cleanloop init
 ```
-Si apre un breve wizard: **obiettivo** (1 riga), poi i **task** uno per riga (invio su riga vuota per finire), poi eventuali **vincoli**. Esempio:
+Si apre un breve wizard: **obiettivo** (1 riga), poi i **task**, poi eventuali **vincoli**. Ogni task può occupare più righe (puoi incollare un prompt intero): **riga vuota** = passa al task successivo, **`.` da sola** = fine dell'elenco. Esempio:
 ```
 Obiettivo (1 riga): Paginazione dell'endpoint GET /api/orders
-Task da eseguire in ordine, uno per riga. Invio su riga vuota per finire.
-  T1> Aggiungere i parametri page/size e i metadati total/page/size alla risposta
+Task in ordine di esecuzione. Ogni task può occupare più righe (incolla pure):
+  riga vuota = task successivo · "." da sola = fine elenco
+  T1> Aggiungere i parametri page/size a GET /api/orders.
+      La risposta deve includere i metadati total, page, size.
+                                          ← riga vuota: chiude T1
   T2> Test in tests/api/test_orders.py
-  T3> Aggiornare docs/api.md
-  T4>
-Vincoli ...
+
+  T3> .                                   ← fine elenco
+Vincoli (cosa non toccare, stile, ...): riga vuota = prossimo · "." = fine
   - Non toccare l'autenticazione
-  -
+
+  - .
 ```
+Nota: una riga vuota *dentro* un testo incollato viene interpretata come separatore di task; se il prompt ha paragrafi, incollali uno alla volta o togli le righe vuote.
 (In alternativa `cleanloop init --task "…"` crea tutto senza domande, con un solo task.)
 
 Vengono creati:

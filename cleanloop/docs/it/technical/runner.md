@@ -12,7 +12,7 @@ Vedi [Configurazione → Comandi del runner](../user-guide/configuration.md#coma
 4. Se manca `TASK.md`: con `--task` lo genera con obiettivo = testo e `T1` = testo; se stdin è un terminale apre il wizard (`read` per obiettivo, task, vincoli); altrimenti copia il template. Se manca `PROGRESS.md`, lo genera con Obiettivo e Piano derivati da `TASK.md`.
 
 ### `add ["testo"]`
-Inserisce `- [ ] T<max+1>: testo` alla fine della sezione `## Task` di `TASK.md` (awk: prima riga vuota dopo l'intestazione). Senza argomento e con stdin terminale: loop di `read`, riga vuota per finire. Non tocca `PROGRESS.md` (l'allineamento del Piano è compito del modello alla ripresa).
+Inserisce il blocco `- [ ] T<max+1>: prima riga` + continuazioni indentate alla fine della sezione `## Task` di `TASK.md` (awk: prima riga vuota dopo l'intestazione; il blocco è passato via file temporaneo). Senza argomento e con stdin terminale: `read_block` in loop — riga vuota chiude il task, `.` da sola o EOF chiude l'elenco. Non tocca `PROGRESS.md` (l'allineamento del Piano è compito del modello alla ripresa).
 
 ### `tasks`
 Stampa le righe checkbox di `## Task` con ✔ se spuntate in `TASK.md` o se in `PROGRESS.md` esiste `- [x] … T<n>`.

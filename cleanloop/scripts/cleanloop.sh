@@ -27,15 +27,37 @@ checksum()  { cleanloop_checksum "$1"; }
 
 
 # ---- creazione file -------------------------------------------------------
-# write_task_file "obiettivo" "task1\ntask2..." "vincolo1\n..."
+# Un task può essere multiriga: prima riga dopo "- [ ] Tn: ", righe successive indentate di 6 spazi.
+format_task() {  # $1=id  $2=testo (anche con \n)
+  local id="$1" text="$2" first rest
+  first=${text%%$'\n'*}; rest=${text#*$'\n'}
+  printf -- '- [ ] T%s: %s\n' "$id" "$first"
+  [ "$rest" != "$text" ] && printf '%s\n' "$rest" | sed '/^[[:space:]]*$/d; s/^/      /'
+  return 0
+}
+
+# Legge un blocco multiriga da stdin: riga vuota chiude il blocco; "." da sola o EOF chiude l'elenco.
+# Ritorna 0 con il blocco in $BLOCK, 1 se l'elenco è finito. $1 = prompt della prima riga.
+read_block() {
+  BLOCK=""; local line first=1
+  while true; do
+    if [ $first = 1 ]; then read -r -p "$1" line || { [ -n "$BLOCK" ] && return 0 || return 1; }
+    else read -r -p "      " line || return 0; fi
+    if [ $first = 1 ] && [ "$line" = "." ]; then return 1; fi
+    if [ -z "$line" ]; then [ $first = 1 ] && continue || return 0; fi
+    BLOCK+="${BLOCK:+$'\n'}$line"; first=0
+  done
+}
+
+# write_task_file "obiettivo"  — usa gli array WIZ_TASKS e WIZ_CONSTRAINTS
 write_task_file() {
-  local goal="$1" tasks="$2" constraints="$3" f="$CWD/$CLEANLOOP_TASK_FILE"
+  local goal="$1" f="$CWD/$CLEANLOOP_TASK_FILE" n=0 t c
   {
     printf '# TASK\n\n## Obiettivo\n%s\n\n## Task (coda: aggiungi con `cleanloop add`)\n' "$goal"
-    if [ -n "$tasks" ]; then local n=0; while IFS= read -r t; do [ -z "$t" ] && continue; n=$((n+1)); printf -- '- [ ] T%d: %s\n' "$n" "$t"; done <<< "$tasks"
+    if [ ${#WIZ_TASKS[@]} -gt 0 ]; then for t in "${WIZ_TASKS[@]}"; do n=$((n+1)); format_task "$n" "$t"; done
     else printf -- '- [ ] T1: ...\n'; fi
     printf '\n## Vincoli\n'
-    if [ -n "$constraints" ]; then while IFS= read -r c; do [ -z "$c" ] && continue; printf -- '- %s\n' "$c"; done <<< "$constraints"; else printf -- '- (nessuno)\n'; fi
+    if [ ${#WIZ_CONSTRAINTS[@]} -gt 0 ]; then for c in "${WIZ_CONSTRAINTS[@]}"; do printf -- '- %s\n' "${c//$'\n'/ }"; done; else printf -- '- (nessuno)\n'; fi
     printf '\n## Definizione di fatto\n- [ ] Tutti i task della coda sono completati e verificati (comando/test indicato in PROGRESS.md)\n'
   } > "$f"
 }
@@ -45,69 +67,63 @@ write_progress_file() {
   goal=$(awk '/^## Obiettivo/{g=1;next} /^## /{g=0} g && NF{print; exit}' "$CWD/$CLEANLOOP_TASK_FILE" 2>/dev/null)
   plan=$(task_lines | sed 's/^/- [ ] /')
   {
-    printf '# PROGRESS\n\nSTATUS: IN_PROGRESS\nITERATION: 0\n\n## Obiettivo (1 riga)\n%s\n\n## Fatto\n- (vuoto)\n\n## In corso\n- (vuoto)\n\n## Prossimo passo (handoff)\n- Leggi TASK.md; se il Piano qui sotto e la coda in TASK.md non coincidono, allineali. Poi inizia dal primo task non spuntato: esplora solo i file necessari, spezzalo se non sta in una iterazione.\n\n## Piano (sotto-task, spuntare)\n%s\n\n## Decisioni\n- (vuoto)\n\n## Trappole / note\n- (vuoto)\n\n## Verifica (come si controlla che funziona)\n- comando: `...`\n' \
+    printf '# PROGRESS\n\nSTATUS: IN_PROGRESS\nITERATION: 0\n\n## Obiettivo (1 riga)\n%s\n\n## Fatto\n- (vuoto)\n\n## In corso\n- (vuoto)\n\n## Prossimo passo (handoff)\n- Leggi TASK.md (i task possono avere dettagli su più righe); se il Piano qui sotto e la coda in TASK.md non coincidono, allineali. Poi inizia dal primo task non spuntato: esplora solo i file necessari, spezzalo se non sta in una iterazione.\n\n## Piano (sotto-task, spuntare)\n%s\n\n## Decisioni\n- (vuoto)\n\n## Trappole / note\n- (vuoto)\n\n## Verifica (come si controlla che funziona)\n- comando: `...`\n' \
       "${goal:-<cosa deve essere vero alla fine>}" "${plan:-- [ ] ...}"
   } > "$f"
 }
 
-# righe "Tn: testo" dei task in TASK.md (spuntati o no)
+# prime righe "Tn: testo" dei task in TASK.md (le continuazioni indentate sono escluse)
 task_lines() { awk '/^## Definizione/{exit} /^- \[[ xX]\] /{print}' "$CWD/$CLEANLOOP_TASK_FILE" 2>/dev/null | sed -E 's/^- \[[ xX]\] //'; }
 next_task_id() { local n; n=$(grep -Eo '^- \[[ xX]\] T[0-9]+:' "$CWD/$CLEANLOOP_TASK_FILE" 2>/dev/null | grep -Eo '[0-9]+' | sort -n | tail -1); echo $(( ${n:-0} + 1 )); }
 
+WIZ_TASKS=(); WIZ_CONSTRAINTS=()
 wizard() {
-  local goal tasks="" constraints="" line
+  local goal
   printf '\n\033[1mcleanloop — nuovo task\033[0m  (Ctrl-C per annullare)\n\n'
   read -r -p "Obiettivo (1 riga): " goal
-  printf '\nTask da eseguire in ordine, uno per riga. Invio su riga vuota per finire.\n'
-  local n=1
-  while true; do
-    read -r -p "  T$n> " line || break
-    [ -z "$line" ] && break
-    tasks+="$line"$'\n'; n=$((n+1))
-  done
-  printf '\nVincoli (cosa non toccare, stile, ...), uno per riga. Invio su riga vuota per finire.\n'
-  while true; do
-    read -r -p "  - " line || break
-    [ -z "$line" ] && break
-    constraints+="$line"$'\n'
-  done
-  write_task_file "$goal" "$tasks" "$constraints"
-  say "creato $CLEANLOOP_TASK_FILE con $((n-1)) task"
+  printf '\nTask in ordine di esecuzione. Ogni task può occupare più righe (incolla pure):\n  riga vuota = task successivo · "." da sola = fine elenco\n'
+  while read_block "  T$(( ${#WIZ_TASKS[@]} + 1 ))> "; do WIZ_TASKS+=("$BLOCK"); done
+  printf '\nVincoli (cosa non toccare, stile, ...): riga vuota = prossimo · "." = fine\n'
+  while read_block "  - "; do WIZ_CONSTRAINTS+=("$BLOCK"); done
+  write_task_file "$goal"
+  say "creato $CLEANLOOP_TASK_FILE con ${#WIZ_TASKS[@]} task"
 }
 
 cmd_add() {
   [ -f "$CWD/$CLEANLOOP_TASK_FILE" ] || die "manca $CLEANLOOP_TASK_FILE: esegui prima '$(basename "$0") init'"
   add_one() {
-    local id; id=$(next_task_id)
+    local id blockfile; id=$(next_task_id); blockfile=$(mktemp)
+    format_task "$id" "$1" > "$blockfile"
     # inserisce prima della prima riga vuota che segue la sezione "## Task"
-    awk -v line="- [ ] T$id: $1" '
+    awk -v bf="$blockfile" '
+      function dump(  l){ while ((getline l < bf) > 0) print l; close(bf) }
       /^## Task/ {intask=1}
       intask && /^## / && !/^## Task/ {intask=0}
-      intask && done==0 && /^$/ {print line; done=1}
+      intask && done==0 && /^$/ {dump(); done=1}
       {print}
-      END {if(!done) print line}' "$CWD/$CLEANLOOP_TASK_FILE" > "$CWD/$CLEANLOOP_TASK_FILE.tmp" && mv "$CWD/$CLEANLOOP_TASK_FILE.tmp" "$CWD/$CLEANLOOP_TASK_FILE"
-    say "accodato T$id: $1"
+      END {if(!done) dump()}' "$CWD/$CLEANLOOP_TASK_FILE" > "$CWD/$CLEANLOOP_TASK_FILE.tmp" && mv "$CWD/$CLEANLOOP_TASK_FILE.tmp" "$CWD/$CLEANLOOP_TASK_FILE"
+    rm -f "$blockfile"
+    say "accodato T$id: ${1%%$'\n'*}"
   }
   if [ $# -gt 0 ]; then add_one "$*"; return; fi
   [ -t 0 ] || die "nessun task passato e stdin non è un terminale"
-  printf 'Accoda task, uno per riga. Invio su riga vuota per finire.\n'
-  local line
-  while true; do
-    read -r -p "  T$(next_task_id)> " line || break
-    [ -z "$line" ] && break
-    add_one "$line"
-  done
+  printf 'Accoda task. Ogni task può occupare più righe: riga vuota = task successivo · "." da sola = fine\n'
+  while read_block "  T$(next_task_id)> "; do add_one "$BLOCK"; done
 }
 
 cmd_tasks() {
   [ -f "$CWD/$CLEANLOOP_TASK_FILE" ] || die "manca $CLEANLOOP_TASK_FILE"
   echo "coda in $CLEANLOOP_TASK_FILE  (STATUS: $(status_of || echo '?'), ITERATION: $(iter_of || echo '?'))"
-  awk '/^## Definizione/{exit} /^- \[[ xX]\] /{print}' "$CWD/$CLEANLOOP_TASK_FILE" | while IFS= read -r l; do
+  awk '/^## Definizione/{exit}
+       /^- \[[ xX]\] /{ if (cur!="") print cur "\t" extra; cur=$0; extra=0; next }
+       cur!="" && /^      /{ extra++ }
+       END{ if (cur!="") print cur "\t" extra }' "$CWD/$CLEANLOOP_TASK_FILE" | while IFS=$'\t' read -r l extra; do
     id=$(printf '%s' "$l" | grep -Eo 'T[0-9]+' | head -1)
     if printf '%s' "$l" | grep -Eq '^- \[[xX]\]'; then mark="✔"
     elif [ -n "$id" ] && grep -Eq "^- \[[xX]\] .*${id}([^0-9]|$)" "$CWD/$CLEANLOOP_PROGRESS_FILE" 2>/dev/null; then mark="✔"
     else mark=" "; fi
-    printf '  %s %s\n' "$mark" "$(printf '%s' "$l" | sed -E 's/^- \[[ xX]\] //')"
+    suffix=""; [ "${extra:-0}" -gt 0 ] && suffix="  (+$extra righe)"
+    printf '  %s %s%s\n' "$mark" "$(printf '%s' "$l" | sed -E 's/^- \[[ xX]\] //')" "$suffix"
   done
 }
 
@@ -133,7 +149,7 @@ CFG
   fi
   if [ ! -f "$CWD/$CLEANLOOP_TASK_FILE" ]; then
     if [ -n "$task_text" ]; then
-      write_task_file "$task_text" "$task_text" ""; say "creato $CLEANLOOP_TASK_FILE (T1 = task indicato; aggiungi altri con '$(basename "$0") add')"
+      WIZ_TASKS=("$task_text"); write_task_file "$task_text"; say "creato $CLEANLOOP_TASK_FILE (T1 = task indicato; aggiungi altri con '$(basename "$0") add')"
     elif [ -t 0 ]; then
       wizard
     else

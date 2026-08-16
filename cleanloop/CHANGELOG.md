@@ -4,6 +4,10 @@ All notable changes to cleanloop are documented here. Format: [Keep a Changelog]
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-08-16
+### Changed
+- Wizard and interactive `add` accept **multi-line tasks** (paste-friendly): an empty line moves to the next task, a lone `.` (or Ctrl-D) ends the list. Continuation lines are stored indented under the bullet in `TASK.md`; `tasks` shows `(+n righe)`.
+
 ## [0.2.0] — 2026-08-16
 ### Added
 - `cleanloop init` interactive wizard (goal, tasks one per line, constraints) when run from a terminal without `--task`.

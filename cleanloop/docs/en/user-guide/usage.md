@@ -58,7 +58,7 @@ An effective pattern:
 - [ ] T1: Add page/size to GET /api/orders
 - [ ] T2: Tests in tests/api
 ```
-- `cleanloop init` creates it with the wizard; `cleanloop add "…"` appends (progressive `Tn` id), also **while the loop is running**: the next iteration sees it.
+- `cleanloop init` creates it with the wizard; `cleanloop add "…"` appends (progressive `Tn` id), also **while the loop is running**: the next iteration sees it. A task may be multi-line (wizard and interactive `add`: empty line = next task, `.` = end; as an argument: `cleanloop add $'first line\nsecond line'`); lines after the first are stored indented under the bullet.
 - The *Plan* in `PROGRESS.md` mirrors it with the same ids; on every resume Claude compares queue and Plan and adds new entries. It may split a task into sub-tasks, never remove undone entries.
 - `cleanloop tasks` shows the queue with ✔ on entries ticked in the Plan.
 - The loop ends (`STATUS: DONE`) when the Definition of done is verified: by default "all queued tasks completed and verified". If you enqueue a task after `DONE`, set `STATUS: IN_PROGRESS` again and rerun `run`.

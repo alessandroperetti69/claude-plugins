@@ -37,18 +37,23 @@ In the root of the project you want to work on:
 ```bash
 cleanloop init
 ```
-A short wizard opens: the **goal** (1 line), then the **tasks** one per line (Enter on an empty line to finish), then optional **constraints**. Example:
+A short wizard opens: the **goal** (1 line), then the **tasks**, then optional **constraints**. Each task may span several lines (you can paste a whole prompt): an **empty line** moves to the next task, a lone **`.`** ends the list. Example:
 ```
 Obiettivo (1 riga): Pagination for GET /api/orders
-Task da eseguire in ordine, uno per riga. Invio su riga vuota per finire.
-  T1> Add page/size parameters and total/page/size metadata to the response
+Task in ordine di esecuzione. Ogni task può occupare più righe (incolla pure):
+  riga vuota = task successivo · "." da sola = fine elenco
+  T1> Add page/size parameters to GET /api/orders.
+      The response must include total, page, size metadata.
+                                          ← empty line: closes T1
   T2> Tests in tests/api/test_orders.py
-  T3> Update docs/api.md
-  T4>
-Vincoli ...
+
+  T3> .                                   ← end of list
+Vincoli (cosa non toccare, stile, ...): riga vuota = prossimo · "." = fine
   - Do not touch authentication
-  -
+
+  - .
 ```
+Note: an empty line *inside* pasted text is read as a task separator; if your prompt has paragraphs, paste them one at a time or remove blank lines.
 (Prompts are in Italian; answers can be in any language. Alternatively `cleanloop init --task "…"` creates everything without questions, with a single task.)
 
 This creates:

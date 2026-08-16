@@ -58,7 +58,7 @@ Un pattern efficace:
 - [ ] T1: Aggiungere page/size a GET /api/orders
 - [ ] T2: Test in tests/api
 ```
-- `cleanloop init` la crea con il wizard; `cleanloop add "…"` accoda (ID progressivo `Tn`), anche **mentre il loop gira**: la prossima iterazione la vede.
+- `cleanloop init` la crea con il wizard; `cleanloop add "…"` accoda (ID progressivo `Tn`), anche **mentre il loop gira**: la prossima iterazione la vede. Un task può essere multiriga (nel wizard e in `add` interattivo: riga vuota = task successivo, `.` = fine; da argomento: `cleanloop add $'prima riga\nseconda riga'`); le righe oltre la prima sono salvate indentate sotto il punto elenco.
 - Il *Piano* in `PROGRESS.md` la rispecchia con gli stessi ID; a ogni ripresa Claude confronta coda e Piano e aggiunge le voci nuove. Può spezzare un task in sotto-task, mai rimuovere voci non fatte.
 - `cleanloop tasks` mostra la coda con ✔ sulle voci spuntate nel Piano.
 - Il loop termina (`STATUS: DONE`) quando la Definizione di fatto è verificata: di default "tutti i task della coda completati e verificati". Se accodi un task dopo il `DONE`, rimetti `STATUS: IN_PROGRESS` e rilancia `run`.

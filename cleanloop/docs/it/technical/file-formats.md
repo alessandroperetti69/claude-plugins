@@ -18,7 +18,7 @@
 - [ ] Tutti i task della coda sono completati e verificati (comando/test indicato in PROGRESS.md)
 ```
 - `## Obiettivo`: la prima riga non vuota è copiata nell'Obiettivo di `PROGRESS.md` da `init`.
-- `## Task`: **coda ordinata**; ogni riga `- [ ] T<n>: testo`. Il runner (`add`) inserisce in coda con ID = max+1; `tasks` legge le righe checkbox fino a `## Definizione`. Il modello non modifica questa sezione (al più spunta), l'utente sì, in ogni momento.
+- `## Task`: **coda ordinata**; ogni task inizia con `- [ ] T<n>: prima riga`; le righe successive del task sono indentate di 6 spazi (continuazione Markdown del punto elenco). Il runner (`add`) inserisce in coda con ID = max+1; `tasks` legge le righe checkbox fino a `## Definizione`. Il modello non modifica questa sezione (al più spunta), l'utente sì, in ogni momento.
 - `## Definizione di fatto`: checkbox che il modello deve verificare prima di scrivere `STATUS: DONE`.
 
 Iniettato dal `SessionStart` hook (primi 6000 byte).

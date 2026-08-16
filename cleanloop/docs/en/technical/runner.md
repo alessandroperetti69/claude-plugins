@@ -12,7 +12,7 @@ See [Configuration → Runner commands](../user-guide/configuration.md#runner-co
 4. If `TASK.md` is missing: with `--task` it generates it with goal = text and `T1` = text; if stdin is a terminal it opens the wizard (`read` for goal, tasks, constraints); otherwise it copies the template. If `PROGRESS.md` is missing, it generates it with Goal and Plan derived from `TASK.md`.
 
 ### `add ["text"]`
-Inserts `- [ ] T<max+1>: text` at the end of the `## Task` section of `TASK.md` (awk: first empty line after the heading). Without argument and with a terminal stdin: `read` loop, empty line to finish. Does not touch `PROGRESS.md` (aligning the Plan is the model's job on resume).
+Inserts the block `- [ ] T<max+1>: first line` + indented continuations at the end of the `## Task` section of `TASK.md` (awk: first empty line after the heading; the block is passed via a temp file). Without argument and with a terminal stdin: `read_block` loop — an empty line closes the task, a lone `.` or EOF closes the list. Does not touch `PROGRESS.md` (aligning the Plan is the model's job on resume).
 
 ### `tasks`
 Prints the `## Task` checkbox lines with ✔ if ticked in `TASK.md` or if `PROGRESS.md` contains `- [x] … T<n>`.
