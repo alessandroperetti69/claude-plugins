@@ -50,6 +50,19 @@ Un pattern efficace:
 2. **`cleanloop run`** per macinare i sotto-task ripetitivi.
 3. **Interattivo** per rifinire e chiudere.
 
+## La coda dei task
+
+`TASK.md`, sezione `## Task`, è una **coda ordinata** di proprietà tua:
+```markdown
+## Task (coda: aggiungi con `cleanloop add`)
+- [ ] T1: Aggiungere page/size a GET /api/orders
+- [ ] T2: Test in tests/api
+```
+- `cleanloop init` la crea con il wizard; `cleanloop add "…"` accoda (ID progressivo `Tn`), anche **mentre il loop gira**: la prossima iterazione la vede.
+- Il *Piano* in `PROGRESS.md` la rispecchia con gli stessi ID; a ogni ripresa Claude confronta coda e Piano e aggiunge le voci nuove. Può spezzare un task in sotto-task, mai rimuovere voci non fatte.
+- `cleanloop tasks` mostra la coda con ✔ sulle voci spuntate nel Piano.
+- Il loop termina (`STATUS: DONE`) quando la Definizione di fatto è verificata: di default "tutti i task della coda completati e verificati". Se accodi un task dopo il `DONE`, rimetti `STATUS: IN_PROGRESS` e rilancia `run`.
+
 ## Cosa succede a un checkpoint
 
 Claude, in ordine:

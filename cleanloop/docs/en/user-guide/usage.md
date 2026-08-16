@@ -50,6 +50,19 @@ An effective pattern:
 2. **`cleanloop run`** to grind through the repetitive sub-tasks.
 3. **Interactive** to polish and close.
 
+## The task queue
+
+`TASK.md`, section `## Task`, is an **ordered queue** owned by you:
+```markdown
+## Task (coda: aggiungi con `cleanloop add`)
+- [ ] T1: Add page/size to GET /api/orders
+- [ ] T2: Tests in tests/api
+```
+- `cleanloop init` creates it with the wizard; `cleanloop add "…"` appends (progressive `Tn` id), also **while the loop is running**: the next iteration sees it.
+- The *Plan* in `PROGRESS.md` mirrors it with the same ids; on every resume Claude compares queue and Plan and adds new entries. It may split a task into sub-tasks, never remove undone entries.
+- `cleanloop tasks` shows the queue with ✔ on entries ticked in the Plan.
+- The loop ends (`STATUS: DONE`) when the Definition of done is verified: by default "all queued tasks completed and verified". If you enqueue a task after `DONE`, set `STATUS: IN_PROGRESS` again and rerun `run`.
+
 ## What happens at a checkpoint
 
 Claude, in order:

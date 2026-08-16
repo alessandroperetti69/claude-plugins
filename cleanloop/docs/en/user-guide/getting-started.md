@@ -35,8 +35,22 @@ Reload the shell (`source ~/.zshrc`) and check with `cleanloop` (prints usage).
 
 In the root of the project you want to work on:
 ```bash
-cleanloop init --task "Add pagination to the GET /api/orders endpoint"
+cleanloop init
 ```
+A short wizard opens: the **goal** (1 line), then the **tasks** one per line (Enter on an empty line to finish), then optional **constraints**. Example:
+```
+Obiettivo (1 riga): Pagination for GET /api/orders
+Task da eseguire in ordine, uno per riga. Invio su riga vuota per finire.
+  T1> Add page/size parameters and total/page/size metadata to the response
+  T2> Tests in tests/api/test_orders.py
+  T3> Update docs/api.md
+  T4>
+Vincoli ...
+  - Do not touch authentication
+  -
+```
+(Prompts are in Italian; answers can be in any language. Alternatively `cleanloop init --task "…"` creates everything without questions, with a single task.)
+
 This creates:
 - `TASK.md` — task description (for you to complete)
 - `PROGRESS.md` — progress state (updated by Claude)
@@ -44,9 +58,11 @@ This creates:
 
 > From now on the cleanloop hooks are active **in this folder**. In other projects they stay inert.
 
-## 4. Write a good `TASK.md`
+## 4. Refine `TASK.md`
 
-Open `TASK.md` and fill in above all the **Definition of done**: conditions verifiable with a command. Example:
+The `## Task` section is your **queue**: you can add entries at any time, even while the loop is running, with `cleanloop add "…"` (or `cleanloop add` to enter several). `cleanloop tasks` shows it with status.
+
+Open `TASK.md` and complete the **Definition of done** with conditions verifiable by a command. Example:
 ```markdown
 ## Definition of done
 - [ ] `GET /api/orders?page=2&size=20` returns 20 items plus `total`, `page`, `size` metadata

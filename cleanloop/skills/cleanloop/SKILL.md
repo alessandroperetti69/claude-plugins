@@ -20,9 +20,9 @@ Il percorso del plugin è la cartella che contiene questa skill, due livelli sop
 
 ## 2. Setup di un progetto (una volta)
 
-1. `bash <plugin>/scripts/cleanloop.sh init` nella radice del progetto → crea `TASK.md`, `PROGRESS.md`, `.cleanloop/{config,enabled,state,logs}`. Da questo momento gli hook sono attivi in questa cartella.
-2. Compila `TASK.md` con l'utente: obiettivo, **Definizione di fatto** verificabile, vincoli, cosa non toccare.
-3. Compila `PROGRESS.md`: obiettivo in 1 riga, **Piano** di sotto-task piccoli (ognuno verificabile con un comando), primo handoff.
+1. `bash <plugin>/scripts/cleanloop.sh init` nella radice del progetto → crea `TASK.md`, `PROGRESS.md`, `.cleanloop/{config,enabled,state,logs}`. Da terminale, senza `--task`, apre un wizard (obiettivo, task uno per riga, vincoli). Da questo momento gli hook sono attivi in questa cartella.
+2. `TASK.md`: la sezione **`## Task`** è la **coda** dell'utente (`- [ ] T1: …`), che può crescere in ogni momento con `cleanloop add "…"` (anche mentre il loop gira). Aiuta l'utente a rendere verificabile la **Definizione di fatto** e a esplicitare vincoli e cosa non toccare.
+3. `PROGRESS.md`: il **Piano** rispecchia la coda (stessi ID `Tn`), eventualmente spezzando un task in sotto-task; a ogni ripresa confronta coda e Piano e aggiungi le voci nuove. Obiettivo in 1 riga, primo handoff.
 4. Facoltativo: soglie in `.cleanloop/config` (`CLEANLOOP_THRESHOLD`, default 25; `CLEANLOOP_HARD`, default 40).
 
 ## 3. Protocollo di checkpoint (quando l'hook lo chiede, o ogni sotto-task chiuso)

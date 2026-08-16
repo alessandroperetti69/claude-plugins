@@ -4,6 +4,15 @@ All notable changes to cleanloop are documented here. Format: [Keep a Changelog]
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-08-16
+### Added
+- `cleanloop init` interactive wizard (goal, tasks one per line, constraints) when run from a terminal without `--task`.
+- `cleanloop add ["text"]`: append tasks to the `## Task` queue in `TASK.md`, also while the loop is running; interactive one-per-line mode without argument.
+- `cleanloop tasks`: list the queue with completion marks.
+- Queue semantics in the skill, session-start hook and iteration prompt: `TASK.md ## Task` is the user's queue; the *Plan* in `PROGRESS.md` mirrors it (same `Tn` ids).
+### Changed
+- `TASK.md` template now has `## Obiettivo`, `## Task`, `## Vincoli`, `## Definizione di fatto` sections; `PROGRESS.md` is generated with the plan pre-filled from the queue.
+
 ## [0.1.0] — 2026-08-15
 ### Added
 - Skill `/cleanloop`: checkpoint protocol (`PROGRESS.md` + `CLAUDE.md`), resume after `/clear`/`/compact`, loop usage, anti-patterns.

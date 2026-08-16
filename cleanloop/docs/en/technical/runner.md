@@ -9,7 +9,13 @@ See [Configuration → Runner commands](../user-guide/configuration.md#runner-co
 1. `need_jq`.
 2. Creates `.cleanloop/{state,logs}` and the empty file `.cleanloop/enabled`.
 3. If missing, writes `.cleanloop/config` with every variable in the `export VAR="${VAR:-default}"` pattern.
-4. If missing, creates `TASK.md` (from the `--task` text or the template) and `PROGRESS.md` (template).
+4. If `TASK.md` is missing: with `--task` it generates it with goal = text and `T1` = text; if stdin is a terminal it opens the wizard (`read` for goal, tasks, constraints); otherwise it copies the template. If `PROGRESS.md` is missing, it generates it with Goal and Plan derived from `TASK.md`.
+
+### `add ["text"]`
+Inserts `- [ ] T<max+1>: text` at the end of the `## Task` section of `TASK.md` (awk: first empty line after the heading). Without argument and with a terminal stdin: `read` loop, empty line to finish. Does not touch `PROGRESS.md` (aligning the Plan is the model's job on resume).
+
+### `tasks`
+Prints the `## Task` checkbox lines with ✔ if ticked in `TASK.md` or if `PROGRESS.md` contains `- [x] … T<n>`.
 5. If the project is a git repo and `.gitignore` does not contain `.cleanloop/state`, appends `state/` and `logs/`.
 
 ### `run [-n N]`

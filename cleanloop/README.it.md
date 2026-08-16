@@ -16,8 +16,9 @@ Plugin per Claude Code che tiene il contesto **sotto una soglia (default 25% del
 ```bash
 alias cleanloop='bash ~/.claude/plugins/marketplaces/peretti-plugins/cleanloop/scripts/cleanloop.sh'
 cd mio-progetto
-cleanloop init --task "Migrare l'auth da sessioni a JWT"   # poi compila TASK.md (definizione di fatto)
-cleanloop run                                             # loop autonomo
+cleanloop init                       # wizard: obiettivo, task uno per riga, vincoli
+cleanloop add "Aggiornare la doc"    # accoda altri task, anche a loop avviato
+cleanloop run                        # loop autonomo
 # oppure: claude → /cleanloop                              # interattivo, hook attivi
 ```
 Richiede Claude Code ≥ 2.1, `bash`, `jq`.

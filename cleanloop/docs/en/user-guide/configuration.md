@@ -28,7 +28,10 @@ The threshold is a percentage of the window: with a 1M-token model, 25% = 250k t
 ## Runner commands
 
 ```
-cleanloop init [--task "text"]    creates TASK.md, PROGRESS.md, .cleanloop/{config,enabled,state,logs}; updates .gitignore
+cleanloop init [--task "text"]    creates TASK.md, PROGRESS.md, .cleanloop/{config,enabled,state,logs}; updates .gitignore.
+                                  From a terminal without --task: wizard (goal, tasks one per line, constraints)
+cleanloop add  ["text"]           appends a task (T<n>) to TASK.md; without argument: one per line, empty line to finish
+cleanloop tasks                   lists the queue with ✔ on tasks ticked in the PROGRESS.md Plan
 cleanloop run  [-n N]             loop until DONE/BLOCKED/stall/max iterations
 cleanloop once                    a single iteration (= run -n 1)
 cleanloop status                  state: active, STATUS, ITERATION, thresholds, window, last context %, latest logs

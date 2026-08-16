@@ -1,17 +1,26 @@
 # Formati dei file
 
-## `TASK.md` (scritto dall'utente)
-Testo libero, ma il runner e la skill si aspettano una sezione **Definizione di fatto** con checkbox: è la condizione che il modello deve verificare prima di scrivere `STATUS: DONE`. Template in `templates/TASK.md`:
+## `TASK.md` (scritto dall'utente, generato da `init`)
 ```markdown
 # TASK
-<obiettivo, contesto, cosa NON toccare>
 
-## Definizione di fatto
-- [ ] <condizione verificabile con un comando>
+## Obiettivo
+<1-2 righe>
+
+## Task (coda: aggiungi con `cleanloop add`)
+- [ ] T1: ...
+- [ ] T2: ...
 
 ## Vincoli
 - ...
+
+## Definizione di fatto
+- [ ] Tutti i task della coda sono completati e verificati (comando/test indicato in PROGRESS.md)
 ```
+- `## Obiettivo`: la prima riga non vuota è copiata nell'Obiettivo di `PROGRESS.md` da `init`.
+- `## Task`: **coda ordinata**; ogni riga `- [ ] T<n>: testo`. Il runner (`add`) inserisce in coda con ID = max+1; `tasks` legge le righe checkbox fino a `## Definizione`. Il modello non modifica questa sezione (al più spunta), l'utente sì, in ogni momento.
+- `## Definizione di fatto`: checkbox che il modello deve verificare prima di scrivere `STATUS: DONE`.
+
 Iniettato dal `SessionStart` hook (primi 6000 byte).
 
 ## `PROGRESS.md` (riscritto da Claude a ogni checkpoint)
@@ -27,7 +36,7 @@ Sezioni attese (template in `templates/PROGRESS.md`):
 | Fatto | bullet sintetici, con il "come verificato" |
 | In corso | cosa è a metà e dove esattamente (di norma vuoto al checkpoint) |
 | Prossimo passo (handoff) | file, comando, cosa verificare: sufficiente per ripartire a contesto vuoto |
-| Piano (sotto-task, spuntare) | checklist dei sotto-task |
+| Piano (sotto-task, spuntare) | checklist che rispecchia la coda di `TASK.md` (stessi ID `Tn`), eventualmente spezzata in sotto-task; pre-popolata da `init` |
 | Decisioni | scelta + motivo, 1 riga ciascuna |
 | Trappole / note | cose che fanno perdere tempo |
 | Verifica | comando/i per controllare che funziona |

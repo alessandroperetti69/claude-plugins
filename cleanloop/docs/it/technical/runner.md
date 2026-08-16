@@ -9,7 +9,13 @@ Vedi [Configurazione → Comandi del runner](../user-guide/configuration.md#coma
 1. `need_jq`.
 2. Crea `.cleanloop/{state,logs}` e il file vuoto `.cleanloop/enabled`.
 3. Se manca, scrive `.cleanloop/config` con tutte le variabili nel pattern `export VAR="${VAR:-default}"`.
-4. Se manca, crea `TASK.md` (dal testo `--task` o dal template) e `PROGRESS.md` (template).
+4. Se manca `TASK.md`: con `--task` lo genera con obiettivo = testo e `T1` = testo; se stdin è un terminale apre il wizard (`read` per obiettivo, task, vincoli); altrimenti copia il template. Se manca `PROGRESS.md`, lo genera con Obiettivo e Piano derivati da `TASK.md`.
+
+### `add ["testo"]`
+Inserisce `- [ ] T<max+1>: testo` alla fine della sezione `## Task` di `TASK.md` (awk: prima riga vuota dopo l'intestazione). Senza argomento e con stdin terminale: loop di `read`, riga vuota per finire. Non tocca `PROGRESS.md` (l'allineamento del Piano è compito del modello alla ripresa).
+
+### `tasks`
+Stampa le righe checkbox di `## Task` con ✔ se spuntate in `TASK.md` o se in `PROGRESS.md` esiste `- [x] … T<n>`.
 5. Se il progetto è un repo git e `.gitignore` non contiene `.cleanloop/state`, aggiunge `state/` e `logs/`.
 
 ### `run [-n N]`

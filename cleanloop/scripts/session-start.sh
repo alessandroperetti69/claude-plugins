@@ -17,7 +17,7 @@ progress="$cwd/$CLEANLOOP_PROGRESS_FILE"
 task="$cwd/$CLEANLOOP_TASK_FILE"
 mode="interattiva"; [ "${CLEANLOOP_ACTIVE:-0}" = "1" ] && mode="loop (iterazione ${CLEANLOOP_ITER:-?}/${CLEANLOOP_MAX_ITER})"
 
-body="[cleanloop] attivo — modalità $mode. Soglia contesto: ${CLEANLOOP_THRESHOLD}% (dura ${CLEANLOOP_HARD}%). Regole: un sotto-task per volta, verifica prima di dichiarare fatto, aggiorna $CLEANLOOP_PROGRESS_FILE al checkpoint, in CLAUDE.md solo fatti durevoli."
+body="[cleanloop] attivo — modalità $mode. Soglia contesto: ${CLEANLOOP_THRESHOLD}% (dura ${CLEANLOOP_HARD}%). Regole: un sotto-task per volta, verifica prima di dichiarare fatto, aggiorna $CLEANLOOP_PROGRESS_FILE al checkpoint, in CLAUDE.md solo fatti durevoli. La sezione '## Task' di $CLEANLOOP_TASK_FILE è la CODA dell'utente (può crescere tra un'iterazione e l'altra): ogni voce che manca nel Piano di $CLEANLOOP_PROGRESS_FILE va aggiunta al Piano; i task si eseguono in ordine."
 case "$source" in
   clear|compact) body="$body
 Sessione ripulita ($source): NON ricostruire la storia, riparti dall'handoff in $CLEANLOOP_PROGRESS_FILE." ;;

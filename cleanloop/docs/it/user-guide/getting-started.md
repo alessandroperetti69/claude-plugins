@@ -35,8 +35,22 @@ Ricarica la shell (`source ~/.zshrc`) e verifica con `cleanloop` (stampa l'uso).
 
 Nella radice del progetto su cui vuoi lavorare:
 ```bash
-cleanloop init --task "Aggiungere la paginazione all'endpoint GET /api/orders"
+cleanloop init
 ```
+Si apre un breve wizard: **obiettivo** (1 riga), poi i **task** uno per riga (invio su riga vuota per finire), poi eventuali **vincoli**. Esempio:
+```
+Obiettivo (1 riga): Paginazione dell'endpoint GET /api/orders
+Task da eseguire in ordine, uno per riga. Invio su riga vuota per finire.
+  T1> Aggiungere i parametri page/size e i metadati total/page/size alla risposta
+  T2> Test in tests/api/test_orders.py
+  T3> Aggiornare docs/api.md
+  T4>
+Vincoli ...
+  - Non toccare l'autenticazione
+  -
+```
+(In alternativa `cleanloop init --task "…"` crea tutto senza domande, con un solo task.)
+
 Vengono creati:
 - `TASK.md` — descrizione del task (da completare)
 - `PROGRESS.md` — stato di avanzamento (lo aggiorna Claude)
@@ -44,9 +58,11 @@ Vengono creati:
 
 > Da questo momento gli hook di cleanloop sono attivi **in questa cartella**. Negli altri progetti restano inerti.
 
-## 4. Scrivi bene `TASK.md`
+## 4. Rifinisci `TASK.md`
 
-Apri `TASK.md` e completa soprattutto la **Definizione di fatto**: condizioni verificabili con un comando. Esempio:
+La sezione `## Task` è la tua **coda**: puoi aggiungere voci in ogni momento, anche a loop avviato, con `cleanloop add "…"` (o `cleanloop add` per inserirne più d'una). `cleanloop tasks` la mostra con lo stato.
+
+Apri `TASK.md` e completa la **Definizione di fatto** con condizioni verificabili da un comando. Esempio:
 ```markdown
 ## Definizione di fatto
 - [ ] `GET /api/orders?page=2&size=20` restituisce 20 elementi e i metadati `total`, `page`, `size`
