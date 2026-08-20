@@ -300,7 +300,12 @@ cmd_init() {
   need_jq
   local task_text="" brief_src=""
   local -a passed_keys=()
-  while [ $# -gt 0 ]; do case "$1" in
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --task|--brief|--threshold|--hard|--max-iter|--stall-limit|--remind-every|--permission-mode|--model|--effort|--max-budget-usd|--context-window|--progress-file|--task-file|--log-file|--use-subagents)
+        { [ $# -ge 2 ] && [[ "$2" != -?* ]]; } || die "manca un valore per '$1'" ;;
+    esac
+    case "$1" in
     --task) task_text="$2"; shift 2;;
     --brief) brief_src="$2"; shift 2;;
     --threshold) CLEANLOOP_THRESHOLD="$2"; passed_keys+=(THRESHOLD); shift 2;;
@@ -476,7 +481,12 @@ cmd_run() {
   need_claude; need_jq
   local max="$CLEANLOOP_MAX_ITER"
   local -a passed_keys=()
-  while [ $# -gt 0 ]; do case "$1" in
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -n|--max-iter|--threshold|--hard|--stall-limit|--remind-every|--permission-mode|--model|--effort|--max-budget-usd|--context-window|--progress-file|--task-file|--log-file|--use-subagents)
+        { [ $# -ge 2 ] && [[ "$2" != -?* ]]; } || die "manca un valore per '$1'" ;;
+    esac
+    case "$1" in
     -n|--max-iter) max="$2"; shift 2;;
     --threshold) CLEANLOOP_THRESHOLD="$2"; passed_keys+=(THRESHOLD); shift 2;;
     --hard) CLEANLOOP_HARD="$2"; passed_keys+=(HARD); shift 2;;
@@ -566,7 +576,7 @@ cmd_config() {
 }
 
 cmd_log() {
-  local n=""; while [ $# -gt 0 ]; do case "$1" in -n) n="$2"; shift 2;; *) shift;; esac; done
+  local n=""; while [ $# -gt 0 ]; do case "$1" in -n) [ $# -ge 2 ] || die "manca un valore per '-n'"; n="$2"; shift 2;; *) shift;; esac; done
   local f="$CWD/.cleanloop/logs/events.log"
   [ -f "$f" ] || die "nessun log eventi in $f"
   if [ -n "$n" ]; then tail -n "$n" "$f"; else cat "$f"; fi
