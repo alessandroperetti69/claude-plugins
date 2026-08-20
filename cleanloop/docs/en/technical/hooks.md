@@ -7,7 +7,7 @@ Registered in `hooks/hooks.json`; each command is `bash "${CLAUDE_PLUGIN_ROOT}/s
 |---|---|
 | `cleanloop_load_config cwd` | sources `.cleanloop/config` then applies defaults; exports the `CLEANLOOP_*` variables |
 | `cleanloop_is_active cwd` | `CLEANLOOP_ACTIVE=1` or `cwd/.cleanloop/enabled` exists |
-| `cleanloop_context_window` | override → `[1m]` in settings → 1000000 → otherwise 200000 |
+| `cleanloop_context_window` | override → `haiku` in the model (`CLEANLOOP_MODEL`, or the global one) → 200000 → otherwise 1000000 |
 | `cleanloop_used_tokens transcript` | sums `input + cache_creation + cache_read` of the last `assistant` message |
 | `cleanloop_pct used window` | rounded integer percentage |
 | `cleanloop_checksum file` | `md5 -q` (macOS) or `md5sum` (Linux); `none` if the file is missing |

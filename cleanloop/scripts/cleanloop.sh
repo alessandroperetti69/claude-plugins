@@ -347,7 +347,7 @@ export CLEANLOOP_PERMISSION_MODE="\${CLEANLOOP_PERMISSION_MODE:-$CLEANLOOP_PERMI
 export CLEANLOOP_MODEL="\${CLEANLOOP_MODEL:-$CLEANLOOP_MODEL}"                 # vuoto = default
 export CLEANLOOP_EFFORT="\${CLEANLOOP_EFFORT:-$CLEANLOOP_EFFORT}"               # low|medium|high|xhigh|max, vuoto = default
 export CLEANLOOP_MAX_BUDGET_USD="\${CLEANLOOP_MAX_BUDGET_USD:-$CLEANLOOP_MAX_BUDGET_USD}" # per iterazione, vuoto = nessun limite
-export CLEANLOOP_CONTEXT_WINDOW="\${CLEANLOOP_CONTEXT_WINDOW:-$CLEANLOOP_CONTEXT_WINDOW}" # vuoto = autodetect (200k, o 1M se il modello è [1m])
+export CLEANLOOP_CONTEXT_WINDOW="\${CLEANLOOP_CONTEXT_WINDOW:-$CLEANLOOP_CONTEXT_WINDOW}" # vuoto = autodetect (1M, o 200k se il modello contiene "haiku"); è una stima dal nome modello, non una lettura reale — se il tuo piano differisce, impostalo qui
 export CLEANLOOP_PROGRESS_FILE="\${CLEANLOOP_PROGRESS_FILE:-$CLEANLOOP_PROGRESS_FILE}"    # nome del file di avanzamento
 export CLEANLOOP_TASK_FILE="\${CLEANLOOP_TASK_FILE:-$CLEANLOOP_TASK_FILE}"          # nome del file dei task
 export CLEANLOOP_LOG_FILE="\${CLEANLOOP_LOG_FILE:-$CLEANLOOP_LOG_FILE}"      # log leggibile delle uscite/ripartenze

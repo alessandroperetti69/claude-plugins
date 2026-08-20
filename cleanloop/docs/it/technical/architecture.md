@@ -40,7 +40,7 @@ Ogni hook riceve `transcript_path` (il JSONL della sessione). L'ultimo messaggio
 used = input_tokens + cache_creation_input_tokens + cache_read_input_tokens
 pct  = used / context_window * 100
 ```
-La finestra è `CLEANLOOP_CONTEXT_WINDOW` se impostata, altrimenti 1M se il modello in `~/.claude/settings.json` contiene `[1m]`, altrimenti 200k. È la stessa grandezza che la statusline riceve come `context_window.used_percentage`, ma calcolata dal transcript perché in modalità `-p` la statusline non gira.
+La finestra è `CLEANLOOP_CONTEXT_WINDOW` se impostata, altrimenti 200k se il modello (`CLEANLOOP_MODEL`, o in mancanza il modello globale in `~/.claude/settings.json`) contiene "haiku", altrimenti 1M — tutti i modelli Claude attuali hanno 1M di contesto standard tranne Haiku. **`used` è verificato empiricamente identico** a quello che la statusline riceve come `context_window` (stessa formula, stesso transcript); **la finestra invece no**: l'hook `PostToolUse` non riceve mai il campo `context_window` di Claude Code (verificato instrumentando dal vivo lo script in esecuzione), quindi cleanloop non può leggere la finestra reale e deve dedurla dal nome del modello.
 
 ## Flusso di un'iterazione in modalità loop
 

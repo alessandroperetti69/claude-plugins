@@ -40,7 +40,7 @@ Every hook receives `transcript_path` (the session JSONL). The last `assistant` 
 used = input_tokens + cache_creation_input_tokens + cache_read_input_tokens
 pct  = used / context_window * 100
 ```
-The window is `CLEANLOOP_CONTEXT_WINDOW` if set, otherwise 1M when the model in `~/.claude/settings.json` contains `[1m]`, otherwise 200k. It is the same quantity the status line receives as `context_window.used_percentage`, but computed from the transcript because in `-p` mode the status line does not run.
+The window is `CLEANLOOP_CONTEXT_WINDOW` if set, otherwise 200k when the model (`CLEANLOOP_MODEL`, or failing that the global model in `~/.claude/settings.json`) contains "haiku", otherwise 1M — every current Claude model has a 1M standard context window except Haiku. **`used` is empirically verified to match** what the status line receives as `context_window` (same formula, same transcript); **the window does not**: the `PostToolUse` hook never receives Claude Code's `context_window` field (verified by live-instrumenting the running script), so cleanloop cannot read the real window and has to infer it from the model name.
 
 ## Flow of an iteration in loop mode
 

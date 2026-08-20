@@ -34,14 +34,23 @@ cleanloop_is_active() {
   [ "${CLEANLOOP_ACTIVE:-0}" = "1" ] || [ -f "$cwd/.cleanloop/enabled" ]
 }
 
-# Dimensione della finestra di contesto in token.
+# Dimensione della finestra di contesto in token. Ordine: override esplicito ->
+# modello configurato per QUESTO progetto/esecuzione (CLEANLOOP_MODEL, quello
+# realmente passato a `claude --model` in run_iteration) -> modello globale
+# dell'utente in ~/.claude/settings.json come ultima spiaggia.
+# Tutti i modelli Claude attuali hanno 1M di contesto standard (non dietro beta
+# header); solo Haiku è a 200k. Nessun campo "[1m]" nel nome del modello lo segnala
+# più: verificato dal vivo (hook PostToolUse non riceve context_window; il nome
+# modello nel transcript non porta mai "[1m]" anche con finestra 1M attiva).
 cleanloop_context_window() {
   if [ -n "$CLEANLOOP_CONTEXT_WINDOW" ]; then echo "$CLEANLOOP_CONTEXT_WINDOW"; return; fi
-  local model=""
-  [ -f "$HOME/.claude/settings.json" ] && model=$(jq -r '.model // ""' "$HOME/.claude/settings.json" 2>/dev/null)
+  local model="${CLEANLOOP_MODEL:-}"
+  if [ -z "$model" ] && [ -f "$HOME/.claude/settings.json" ]; then
+    model=$(jq -r '.model // ""' "$HOME/.claude/settings.json" 2>/dev/null)
+  fi
   case "$model" in
-    *"[1m]"*|*1m*) echo 1000000 ;;
-    *) echo 200000 ;;
+    *haiku*|*Haiku*) echo 200000 ;;
+    *) echo 1000000 ;;
   esac
 }
 

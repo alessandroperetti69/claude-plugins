@@ -16,7 +16,7 @@ Precedence (highest first): **environment variable** → project `.cleanloop/con
 | `CLEANLOOP_MODEL` | *(empty)* | model for iterations (`sonnet`, `opus`, full id); empty = user default |
 | `CLEANLOOP_EFFORT` | *(empty)* | `--effort` passed to `claude -p`: `low`, `medium`, `high`, `xhigh`, `max`; empty = session default |
 | `CLEANLOOP_MAX_BUDGET_USD` | *(empty)* | spending cap **per iteration** (`--max-budget-usd`) |
-| `CLEANLOOP_CONTEXT_WINDOW` | *(autodetect)* | window tokens; if empty: 1,000,000 when the model in `~/.claude/settings.json` contains `[1m]`, otherwise 200,000 |
+| `CLEANLOOP_CONTEXT_WINDOW` | *(autodetect)* | window tokens; if empty: 200,000 when the model (`CLEANLOOP_MODEL`, or failing that the global one in `~/.claude/settings.json`) contains "haiku", otherwise 1,000,000 (every current Claude model has 1M except Haiku) |
 | `CLEANLOOP_PROGRESS_FILE` | `PROGRESS.md` | progress file name |
 | `CLEANLOOP_TASK_FILE` | `TASK.md` | task file name |
 | `CLEANLOOP_LOG_FILE` | `LOOPLOG.md` | name of the readable log (exits/restarts table) |
