@@ -6,7 +6,7 @@ Plugin per Claude Code che tiene il contesto **sotto una soglia (default 25% del
 
 - **Skill** `/cleanloop` — il protocollo di checkpoint/ripresa
 - **Hook** — misurano il contesto a ogni tool call, avvisano al 25%, forzano al 40%, reiniettano lo stato dopo `/clear`, sorvegliano la fine di un'iterazione
-- **Runner** `cleanloop.sh` — loop a sessioni fresche (`claude -p` per iterazione) fino a `STATUS: DONE`, con guardie su stallo / max iterazioni / budget
+- **Runner** `cleanloop.sh` — loop a sessioni fresche (`claude -p` per iterazione) fino a `STATUS: DONE`, con guardie su stallo / max iterazioni / budget, subagenti opzionali per i task indipendenti
 
 ## Avvio rapido
 ```
@@ -16,11 +16,13 @@ Plugin per Claude Code che tiene il contesto **sotto una soglia (default 25% del
 ```bash
 alias cleanloop='bash ~/.claude/plugins/marketplaces/peretti-plugins/cleanloop/scripts/cleanloop.sh'
 cd mio-progetto
-cleanloop init                       # wizard: obiettivo, task uno per riga, vincoli
+cleanloop init                       # wizard: obiettivo/task/vincoli, poi modello/soglie/budget (invio = default)
 cleanloop add "Aggiornare la doc"    # accoda altri task, anche a loop avviato
 cleanloop run                        # loop autonomo
 # oppure: claude → /cleanloop                              # interattivo, hook attivi
 ```
+Hai già un prompt lungo o un elenco di task pronto? `pbpaste | cleanloop init` (modalità brief: la prima iterazione lo organizza da sé, niente incollaggio riga per riga). Ogni parametro è configurabile da CLI: `cleanloop init --model opus --threshold 15 ...`, `cleanloop config CHIAVE=VALORE` dopo, o come override una tantum su `run`/`once`.
+
 Richiede Claude Code ≥ 2.1, `bash`, `jq`.
 
 ## Documentazione

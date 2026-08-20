@@ -6,7 +6,7 @@ A Claude Code plugin that keeps the context **under a threshold (default 25% of 
 
 - **Skill** `/cleanloop` — the checkpoint/resume protocol
 - **Hooks** — measure the context at every tool call, warn at 25%, force at 40%, re-inject state after `/clear`, guard the end of an iteration
-- **Runner** `cleanloop.sh` — fresh-session loop (`claude -p` per iteration) until `STATUS: DONE`, with stall / max-iteration / budget guards
+- **Runner** `cleanloop.sh` — fresh-session loop (`claude -p` per iteration) until `STATUS: DONE`, with stall / max-iteration / budget guards, optional subagents for independent tasks
 
 ## Quick start
 ```
@@ -16,11 +16,13 @@ A Claude Code plugin that keeps the context **under a threshold (default 25% of 
 ```bash
 alias cleanloop='bash ~/.claude/plugins/marketplaces/peretti-plugins/cleanloop/scripts/cleanloop.sh'
 cd my-project
-cleanloop init                       # wizard: goal, tasks one per line, constraints
+cleanloop init                       # wizard: goal/tasks/constraints, then model/thresholds/budget (enter = default)
 cleanloop add "Update the docs"      # enqueue more tasks, even while the loop runs
 cleanloop run                        # autonomous loop
 # or: claude → /cleanloop                                    # interactive, hooks active
 ```
+Already have a long prompt or a ready task list? `pbpaste | cleanloop init` (brief mode: the first iteration organises it itself, no line-by-line pasting). Every parameter is configurable from the CLI: `cleanloop init --model opus --threshold 15 ...`, `cleanloop config KEY=VALUE` afterwards, or as a one-off override on `run`/`once`.
+
 Requires Claude Code ≥ 2.1, `bash`, `jq`.
 
 ## Documentation

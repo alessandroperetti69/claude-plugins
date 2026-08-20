@@ -66,6 +66,8 @@ Se lo lanci tu dalla sessione interattiva: usalo con `run_in_background` e spieg
 
 Permessi: in `-p` nessuno risponde ai prompt di permesso. Default `--permission-mode auto`; `bypassPermissions` solo in sandbox (config `CLEANLOOP_PERMISSION_MODE`).
 
+`run`/`once` accettano anche gli stessi flag di configurazione di `init` (`--model`, `--effort`, `--threshold`, `--permission-mode`, `--use-subagents`, ecc.) come override validi solo per quell'esecuzione, senza toccare `.cleanloop/config`: utile se l'utente chiede "prova con opus" o "un'iterazione con permessi diversi" senza voler cambiare la configurazione salvata del progetto.
+
 ## 6. Anti-pattern da evitare
 
 - Fare checkpoint "narrativi" (cosa hai pensato) invece che operativi (dove riprendere).
