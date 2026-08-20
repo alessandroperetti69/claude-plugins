@@ -15,14 +15,17 @@ cleanloop_load_config() {
   : "${CLEANLOOP_STALL_LIMIT:=3}"       # iterazioni senza modifiche a PROGRESS.md prima di fermarsi
   : "${CLEANLOOP_PERMISSION_MODE:=auto}"
   : "${CLEANLOOP_MODEL:=}"
+  : "${CLEANLOOP_EFFORT:=}"             # low|medium|high|xhigh|max, vuoto = default di sessione
   : "${CLEANLOOP_MAX_BUDGET_USD:=}"
   : "${CLEANLOOP_CONTEXT_WINDOW:=}"     # vuoto = autodetect
   : "${CLEANLOOP_PROGRESS_FILE:=PROGRESS.md}"
   : "${CLEANLOOP_TASK_FILE:=TASK.md}"
   : "${CLEANLOOP_LOG_FILE:=LOOPLOG.md}"      # log leggibile: una riga per uscita/ripartenza
+  : "${CLEANLOOP_USE_SUBAGENTS:=0}"     # 1 = l'iterazione valuta il parallelismo con l'Agent tool sui task indipendenti
   export CLEANLOOP_THRESHOLD CLEANLOOP_HARD CLEANLOOP_REMIND_EVERY CLEANLOOP_MAX_ITER \
-         CLEANLOOP_STALL_LIMIT CLEANLOOP_PERMISSION_MODE CLEANLOOP_MODEL CLEANLOOP_MAX_BUDGET_USD \
-         CLEANLOOP_CONTEXT_WINDOW CLEANLOOP_PROGRESS_FILE CLEANLOOP_TASK_FILE CLEANLOOP_LOG_FILE
+         CLEANLOOP_STALL_LIMIT CLEANLOOP_PERMISSION_MODE CLEANLOOP_MODEL CLEANLOOP_EFFORT CLEANLOOP_MAX_BUDGET_USD \
+         CLEANLOOP_CONTEXT_WINDOW CLEANLOOP_PROGRESS_FILE CLEANLOOP_TASK_FILE CLEANLOOP_LOG_FILE \
+         CLEANLOOP_USE_SUBAGENTS
 }
 
 # cleanloop è attivo in questo progetto? (loop in corso, oppure init eseguito)

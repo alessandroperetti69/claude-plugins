@@ -23,6 +23,33 @@
 
 Iniettato dal `SessionStart` hook (primi 6000 byte).
 
+### Variante "brief" (generata da `init --brief`, da un `BRIEF.md` preesistente, o da stdin non interattivo)
+Quando `TASK.md` viene creato in modalità brief (vedi [runner](runner.md#init)), ha un solo task:
+```markdown
+# TASK
+
+## Obiettivo
+Da definire: leggi BRIEF.md e derivalo (vedi T1 sotto)
+
+## Task (coda: aggiungi con `cleanloop add`)
+- [ ] T1: Leggi BRIEF.md (il brief fornito in fase di init) e usalo per riscrivere qui sotto la coda
+      reale dei task (uno o più Tn, in ordine di esecuzione) e, sopra, un Obiettivo in 1-2 righe. Poi
+      riscrivi anche la sezione "Definizione di fatto" con condizioni verificabili dedotte dal brief.
+      In questa iterazione pianifica soltanto: non iniziare lavoro applicativo, chiudi il turno dopo
+      aver riscritto TASK.md.
+
+## Vincoli
+- (nessuno esplicito — dedurli da BRIEF.md o lasciare vuoto)
+
+## Definizione di fatto
+- [ ] La coda di task in "## Task" è stata derivata da BRIEF.md e sostituisce T1
+- [ ] Tutti i task della coda sono completati e verificati (comando/test indicato in PROGRESS.md)
+```
+`PROGRESS.md` riceve un handoff dedicato che punta esplicitamente a `BRIEF.md` invece del testo generico. La prima iterazione riscrive `TASK.md` sostituendo T1 con la coda reale, senza toccare file applicativi in quel turno (verificato empiricamente: vedi [CHANGELOG](../../CHANGELOG.md)).
+
+## `BRIEF.md`
+Solo modalità brief, radice del progetto. Testo libero, senza formato imposto: il prompt/documento passato con `--brief PATH|-`, letto da un `BRIEF.md` già presente in radice, o ricevuto da stdin non interattivo (`pbpaste | cleanloop init`). Creato una sola volta da `init`, tracciato in git come `TASK.md`/`PROGRESS.md`. Non viene più toccato dal runner dopo la creazione: resta come riferimento storico di cosa è stato chiesto in origine, anche dopo che la prima iterazione ha derivato la coda reale in `TASK.md`.
+
 ## `PROGRESS.md` (riscritto da Claude a ogni checkpoint)
 Le prime due righe dopo il titolo sono **lette dal runner** con `grep`:
 ```

@@ -56,6 +56,8 @@ Vincoli (cosa non toccare, stile, ...): riga vuota = prossimo · "." = fine
 Nota: una riga vuota *dentro* un testo incollato viene interpretata come separatore di task; se il prompt ha paragrafi, incollali uno alla volta o togli le righe vuote.
 (In alternativa `cleanloop init --task "…"` crea tutto senza domande, con un solo task.)
 
+**Hai già un prompt lungo o un elenco di task pronto (es. nella clipboard) e vuoi evitare di incollarlo riga per riga?** Usa la modalità brief: `pbpaste | cleanloop init` (o `cleanloop init --brief percorso/al/file.md`). Il testo va in `BRIEF.md` e la **prima iterazione** lo legge e si organizza da sé la coda in `TASK.md`, senza iniziare lavoro applicativo in quel turno — poi conviene lanciare `cleanloop once` per rivedere il piano prima di un `run` senza supervisione. Dettagli in [Configurazione](configuration.md#input-dei-task-brief-invece-del-wizard).
+
 Vengono creati:
 - `TASK.md` — descrizione del task (da completare)
 - `PROGRESS.md` — stato di avanzamento (lo aggiorna Claude)

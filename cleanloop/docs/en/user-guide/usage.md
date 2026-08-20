@@ -31,6 +31,10 @@ While the loop runs you see, for each iteration, the **model** in use (`· model
 
 The loop stops on: `STATUS: DONE` · `STATUS: BLOCKED` (a human is needed) · **stall** (3 iterations without changes to `PROGRESS.md`) · maximum iterations. See [exit codes](configuration.md#runner-exit-codes).
 
+With `CLEANLOOP_USE_SUBAGENTS=1` the iteration can delegate independent tasks to subagents (Agent tool) instead of doing them sequentially: their log lines are tagged with a short id (e.g. `[7SuPBn] → Bash`) so you can follow them separately from the main turn. Details in [Configuration](configuration.md#subagents-cleanloop_use_subagents).
+
+Every parameter (thresholds, model, `--effort`, permission mode, budget, etc.) can be set from the command line: `cleanloop init --threshold 15 ...` at setup, `cleanloop config KEY=VALUE` afterwards, or `cleanloop run/once --model opus ...` as a one-off override valid only for that run, without touching the saved configuration. See [Configuring from the command line](configuration.md#configuring-from-the-command-line).
+
 ### Interactive session (`claude` + `/cleanloop`)
 For when you want to watch or step in.
 
@@ -61,6 +65,7 @@ An effective pattern:
 - [ ] T2: Tests in tests/api
 ```
 - `cleanloop init` creates it with the wizard; `cleanloop add "…"` appends (progressive `Tn` id), also **while the loop is running**: the next iteration sees it. A task may be multi-line (wizard and interactive `add`: empty line = next task, `.` = end; as an argument: `cleanloop add $'first line\nsecond line'`); lines after the first are stored indented under the bullet.
+- An alternative to the wizard if you already have a long prompt or a ready task list (e.g. on your clipboard) and want to avoid pasting it line by line: **brief mode** — `pbpaste | cleanloop init` or `cleanloop init --brief file.md`. The text goes into `BRIEF.md`, and the **first iteration** reads it and organises the `TASK.md` queue itself, without doing any application work in that turn. Details in [Configuration](configuration.md#task-input-brief-instead-of-the-wizard).
 - The *Plan* in `PROGRESS.md` mirrors it with the same ids; on every resume Claude compares queue and Plan and adds new entries. It may split a task into sub-tasks, never remove undone entries.
 - `cleanloop tasks` shows the queue with ✔ on entries ticked in the Plan.
 - The loop ends (`STATUS: DONE`) when the Definition of done is verified: by default "all queued tasks completed and verified". If you enqueue a task after `DONE`, set `STATUS: IN_PROGRESS` again and rerun `run`.
@@ -104,4 +109,5 @@ In `-p` mode nobody can answer permission prompts. If iterations stop on denied 
 - **`CLAUDE.md` is not a diary**: only facts that will still matter in a month.
 - **Review the diff** at the end of the loop like a PR: the loop is autonomous, the responsibility stays yours.
 - **Budget**: `CLEANLOOP_MAX_BUDGET_USD` per iteration and `-n` to bound experiments.
-- **Model**: `CLEANLOOP_MODEL=sonnet` for mechanical sub-tasks, the default model for delicate ones.
+- **Model**: `CLEANLOOP_MODEL=sonnet` for mechanical sub-tasks, the default model for delicate ones; `CLEANLOOP_EFFORT` to tune reasoning effort the same way.
+- **Subagents**: `CLEANLOOP_USE_SUBAGENTS=1` helps when the queue has several genuinely independent tasks (no shared files); on sequential or small tasks the model usually chooses on its own not to use them.

@@ -4,6 +4,19 @@ All notable changes to cleanloop are documented here. Format: [Keep a Changelog]
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-08-20
+### Added
+- `cleanloop init` accepts a flag per config variable (`--threshold`, `--hard`, `--max-iter`, `--stall-limit`, `--remind-every`, `--permission-mode`, `--model`, `--max-budget-usd`, `--context-window`, `--progress-file`, `--task-file`, `--log-file`), written into the generated `.cleanloop/config`; re-running `init` on an already-initialised project updates only the passed keys.
+- `cleanloop config [KEY=VALUE ...]`: prints `.cleanloop/config` with no arguments, or validates and updates the given keys in place.
+- All config values are validated before being written (integers for thresholds/limits, allowed set for `--permission-mode`, non-empty file names).
+- `CLEANLOOP_USE_SUBAGENTS` (0/1, default 0): when enabled, the iteration prompt asks the main turn to delegate independent queued tasks to subagents (Agent tool) in parallel, have them report results as text (not write files), and apply changes / write `PROGRESS.md` itself. Iterations now always run with `--forward-subagent-text`; `stream_pretty()` tags subagent output lines with the launching tool_use id's last 6 characters so parallel subagents can be followed live in the iteration log.
+- Brief mode for task input: `cleanloop init --brief PATH|-`, an existing `BRIEF.md` at the project root, or piped non-interactive stdin (`pbpaste | cleanloop init`) all save the given text to `BRIEF.md` and generate a `TASK.md` with a single planning `T1`; the first iteration reads the brief, derives the goal and real task queue, and rewrites `TASK.md` before doing any application work. Fixes the terminal line-by-line paste breaking on multi-line/bulleted text.
+- `CLEANLOOP_EFFORT` (low/medium/high/xhigh/max, empty = session default): passed as `--effort` to iteration sessions; configurable via `--effort` on `init` or `cleanloop config`.
+- The interactive `init` wizard now asks for model (menu with aliases + custom id), effort, permission mode, subagent use, thresholds, budget and max iterations after goal/tasks/constraints, with enter keeping the current default; a yes/no gate offers advanced parameters (reminder cadence, context window, log file name).
+- `cleanloop run`/`once` accept the same config flags as `init` (plus `--max-iter` as an alias for `-n`) as one-off overrides for that run, without writing `.cleanloop/config`.
+### Fixed
+- `cleanloop init` (and any other command building a config from CLI flags) crashed with "unbound variable" on macOS's default bash 3.2 when no config flags were passed, due to referencing an empty array under `set -u`.
+
 ## [0.5.0] — 2026-08-16
 ### Added
 - Per-iteration **model, tokens and API-equivalent cost**: iterations run with `--output-format stream-json`; the runner prints model at start, text/tools live, and a summary at the end; `LOOPLOG.md` gains `Modello`, `Token iterazione`, `Costo API eq.` columns; `iter_end` events carry `model tokens_in tokens_out cost_usd turns`. Raw stream saved as `iter-NNN-<ts>.jsonl`.

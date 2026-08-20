@@ -31,6 +31,10 @@ Durante il loop vedi a video, per ogni iterazione, il **modello** in uso (`· mo
 
 Il loop si ferma per: `STATUS: DONE` · `STATUS: BLOCKED` (serve un umano) · **stallo** (3 iterazioni senza modifiche a `PROGRESS.md`) · massimo iterazioni. Vedi [codici di uscita](configuration.md#codici-di-uscita-del-runner).
 
+Con `CLEANLOOP_USE_SUBAGENTS=1` l'iterazione può delegare task indipendenti a sub-agenti (Agent tool) invece di farli in sequenza: le loro righe nel log sono taggate con un id breve (es. `[7SuPBn] → Bash`) per seguirle separatamente dal turno principale. Dettagli in [Configurazione](configuration.md#subagenti-cleanloop_use_subagents).
+
+Ogni parametro (soglie, modello, `--effort`, permission mode, budget, ecc.) si passa da riga di comando: `cleanloop init --threshold 15 ...` al setup, `cleanloop config CHIAVE=VALORE` dopo, oppure `cleanloop run/once --model opus ...` come override valido solo per quell'esecuzione, senza toccare la configurazione salvata. Vedi [Configurare da riga di comando](configuration.md#configurare-da-riga-di-comando).
+
 ### Sessione interattiva (`claude` + `/cleanloop`)
 Per quando vuoi seguire o intervenire.
 
@@ -61,6 +65,7 @@ Un pattern efficace:
 - [ ] T2: Test in tests/api
 ```
 - `cleanloop init` la crea con il wizard; `cleanloop add "…"` accoda (ID progressivo `Tn`), anche **mentre il loop gira**: la prossima iterazione la vede. Un task può essere multiriga (nel wizard e in `add` interattivo: riga vuota = task successivo, `.` = fine; da argomento: `cleanloop add $'prima riga\nseconda riga'`); le righe oltre la prima sono salvate indentate sotto il punto elenco.
+- Alternativa al wizard se hai già un prompt lungo o un elenco di task pronto (es. in clipboard) e vuoi evitare di incollarlo riga per riga: **modalità brief** — `pbpaste | cleanloop init` o `cleanloop init --brief file.md`. Il testo va in `BRIEF.md` e la **prima iterazione** lo legge e si organizza da sé la coda in `TASK.md`, senza eseguire lavoro applicativo in quel turno. Dettagli in [Configurazione](configuration.md#input-dei-task-brief-invece-del-wizard).
 - Il *Piano* in `PROGRESS.md` la rispecchia con gli stessi ID; a ogni ripresa Claude confronta coda e Piano e aggiunge le voci nuove. Può spezzare un task in sotto-task, mai rimuovere voci non fatte.
 - `cleanloop tasks` mostra la coda con ✔ sulle voci spuntate nel Piano.
 - Il loop termina (`STATUS: DONE`) quando la Definizione di fatto è verificata: di default "tutti i task della coda completati e verificati". Se accodi un task dopo il `DONE`, rimetti `STATUS: IN_PROGRESS` e rilancia `run`.
@@ -104,4 +109,5 @@ In modalità `-p` nessuno può rispondere ai prompt di permesso. Se le iterazion
 - **`CLAUDE.md` non è un diario**: solo fatti che serviranno anche fra un mese.
 - **Rivedi il diff** a fine loop come una PR: il loop è autonomo, la responsabilità resta tua.
 - **Budget**: `CLEANLOOP_MAX_BUDGET_USD` per iterazione e `-n` per limitare gli esperimenti.
-- **Modello**: `CLEANLOOP_MODEL=sonnet` per i sotto-task meccanici, il modello di default per quelli delicati.
+- **Modello**: `CLEANLOOP_MODEL=sonnet` per i sotto-task meccanici, il modello di default per quelli delicati; `CLEANLOOP_EFFORT` per regolare lo sforzo di ragionamento allo stesso modo.
+- **Subagenti**: `CLEANLOOP_USE_SUBAGENTS=1` aiuta quando la coda ha più task davvero indipendenti (nessun file in comune); su task sequenziali o piccoli il modello di norma sceglie da sé di non usarli.

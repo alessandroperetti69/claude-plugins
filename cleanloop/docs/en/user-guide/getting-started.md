@@ -56,6 +56,8 @@ Vincoli (cosa non toccare, stile, ...): riga vuota = prossimo · "." = fine
 Note: an empty line *inside* pasted text is read as a task separator; if your prompt has paragraphs, paste them one at a time or remove blank lines.
 (Prompts are in Italian; answers can be in any language. Alternatively `cleanloop init --task "…"` creates everything without questions, with a single task.)
 
+**Already have a long prompt or a ready task list (e.g. on your clipboard) and want to avoid pasting it line by line?** Use brief mode: `pbpaste | cleanloop init` (or `cleanloop init --brief path/to/file.md`). The text goes into `BRIEF.md`, and the **first iteration** reads it and organises the `TASK.md` queue itself, without starting any application work in that turn — then run `cleanloop once` to review the plan before letting `run` proceed unsupervised. Details in [Configuration](configuration.md#task-input-brief-instead-of-the-wizard).
+
 This creates:
 - `TASK.md` — task description (for you to complete)
 - `PROGRESS.md` — progress state (updated by Claude)

@@ -105,6 +105,10 @@ stateDiagram-v2
 
 **Loop guards.** Stall (N iterations without changes), maximum iterations, per-iteration budget, explicit `BLOCKED`: an autonomous loop must be able to fail cleanly, not spin forever.
 
+**Subagents at the prompt level only, not the process level.** `CLEANLOOP_USE_SUBAGENTS` instructs the iteration to use the native Agent tool for independent tasks, but it remains **one `claude -p` process per iteration**: no orchestration of multiple parallel processes from the runner. Multiple processes writing `PROGRESS.md`/repo files at the same time would break the state-in-files model the whole tool relies on (race conditions, inconsistent checksums); a single turn that launches and awaits subagents stays deterministic and compatible with the rest of the architecture. Visibility (which subagent is doing what) comes from `--forward-subagent-text` plus tagging in `stream_pretty`, not a new component.
+
+**Brief instead of structured tasks.** The interactive wizard breaks on pasted text with line breaks/bullets (a limitation of `read` in a TTY prompt). Brief mode (`--brief`, `BRIEF.md`, non-interactive stdin) works around it by moving the interpretation from the terminal to the model: raw text goes into `BRIEF.md`, and the **first iteration** — not `init`, which is plain bash and doesn't reason — reads it and produces the structured queue in `TASK.md`. Consistent with "fresh session instead of compaction": even the initial planning goes through a `claude -p` process writing files, not parsing heuristics in the script.
+
 ## Known limitations
 - The context measurement is as of the previous tool call: between two tool calls the model can generate long text the hook does not see.
 - The percentage depends on the declared window: if the loop model has a different window than the one in `settings.json`, set `CLEANLOOP_CONTEXT_WINDOW`.

@@ -11,3 +11,4 @@ Regole non negoziabili:
 6. Termina SEMPRE il turno con PROGRESS.md aggiornato e con una risposta finale di 2-4 righe: cosa hai fatto, cosa resta, STATUS.
 7. `TASK.md` sezione "## Task" è la coda dell'utente e può cambiare tra un'iterazione e l'altra: all'inizio confronta coda e Piano; aggiungi al Piano le voci nuove (stesso ID Tn), non rimuovere mai voci non fatte. Esegui i task in ordine salvo dipendenze evidenti (annotale in Decisioni).
 8. Non chiedere conferme all'utente: non c'è nessuno a rispondere. Prendi decisioni ragionevoli e annotale in "Decisioni".
+9. Se usi sub-agenti (Agent tool): falli riportare il risultato come testo, non fargli scrivere file (alcuni pattern di nome file sono bloccati per i subagent) — applica tu le modifiche. Solo tu, il turno principale, scrivi PROGRESS.md.

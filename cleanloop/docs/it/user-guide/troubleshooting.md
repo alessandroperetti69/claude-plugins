@@ -8,6 +8,9 @@
 ### Gli hook non fanno niente
 Per design sono inerti finché il progetto non è attivato: serve `.cleanloop/enabled` (creato da `cleanloop init`) oppure `CLEANLOOP_ACTIVE=1`. Controlla con `cleanloop status` (riga `attivo:`).
 
+### Ho incollato un elenco di task nel wizard e si è incasinato tutto
+Il wizard legge riga per riga (`read` in un prompt TTY): testo incollato con righe vuote o punteggiatura può essere interpretato come separatore tra un task e l'altro. Evita del tutto l'incollaggio interattivo con la **modalità brief**: `pbpaste | cleanloop init` (o `cleanloop init --brief file.md`). Il testo va in `BRIEF.md` intatto, e la prima iterazione lo legge e organizza da sé la coda in `TASK.md` — nessun parsing riga-per-riga nel terminale. Dettagli in [Configurazione](configuration.md#input-dei-task-brief-invece-del-wizard).
+
 ### La percentuale di contesto sembra sbagliata
 - La finestra è autodetect: 1M se il modello in `~/.claude/settings.json` contiene `[1m]`, altrimenti 200k. Se usi un modello diverso nel loop (`CLEANLOOP_MODEL`), imposta `CLEANLOOP_CONTEXT_WINDOW` esplicitamente.
 - La misura è presa dall'`usage` dell'ultimo messaggio dell'assistente nel transcript (`input + cache_creation + cache_read`), aggiornata a ogni tool call: subito dopo `/clear` può risultare la misura vecchia finché non parte la prima tool call.

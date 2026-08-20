@@ -8,6 +8,9 @@
 ### The hooks do nothing
 By design they are inert until the project is enabled: you need `.cleanloop/enabled` (created by `cleanloop init`) or `CLEANLOOP_ACTIVE=1`. Check with `cleanloop status` (`active:` line).
 
+### I pasted a task list into the wizard and it got mangled
+The wizard reads line by line (`read` in a TTY prompt): pasted text with blank lines or punctuation can be misread as a separator between tasks. Skip interactive pasting entirely with **brief mode**: `pbpaste | cleanloop init` (or `cleanloop init --brief file.md`). The text goes into `BRIEF.md` intact, and the first iteration reads it and organises the `TASK.md` queue itself — no line-by-line parsing in the terminal. Details in [Configuration](configuration.md#task-input-brief-instead-of-the-wizard).
+
 ### The context percentage looks wrong
 - The window is auto-detected: 1M if the model in `~/.claude/settings.json` contains `[1m]`, otherwise 200k. If you use a different model in the loop (`CLEANLOOP_MODEL`), set `CLEANLOOP_CONTEXT_WINDOW` explicitly.
 - The measurement comes from the `usage` of the last assistant message in the transcript (`input + cache_creation + cache_read`), refreshed at every tool call: right after `/clear` it may show the old value until the first tool call runs.
