@@ -56,6 +56,34 @@ Vincoli (cosa non toccare, stile, ...): riga vuota = prossimo · "." = fine
 Note: an empty line *inside* pasted text is read as a task separator; if your prompt has paragraphs, paste them one at a time or remove blank lines.
 (Prompts are in Italian; answers can be in any language. Alternatively `cleanloop init --task "…"` creates everything without questions, with a single task.)
 
+Right after the constraints, the wizard continues with the **loop parameters**: model (menu with aliases + "other" for a full id), effort, permission mode, subagent use, thresholds, budget, max iterations — **enter keeps the shown default**. Example (abridged):
+```
+Parametri del loop  (invio = mantieni il default mostrato)
+
+Modello:
+  1) sonnet   2) opus   3) fable   4) haiku   5) altro (id completo)
+Scelta [invio=predefinito utente]: 2
+
+Effort:
+  1) low   2) medium   3) high   4) xhigh   5) max
+Scelta [invio=predefinito sessione]:
+
+Permission mode:
+  1) auto (consigliato)   2) acceptEdits   3) bypassPermissions (solo sandbox)
+Scelta [invio=auto]:
+
+Valutare il parallelismo con sub-agenti sui task indipendenti? [s/N, invio=no]:
+
+Soglia checkpoint (% contesto) [invio=25]:
+Soglia dura (% contesto) [invio=40]:
+Budget max per iterazione (USD) [invio=illimitato]:
+Iterazioni massime del loop [invio=20]:
+Iterazioni senza progresso prima dello stallo [invio=3]:
+
+Configurare anche i parametri avanzati (promemoria contesto, finestra token, nome log)? [s/N]:
+```
+(Prompts stay in Italian like the rest of the wizard; answers can be in any language.) Each answer is saved to `.cleanloop/config` immediately. All these parameters remain editable later with `cleanloop config KEY=VALUE` or by re-running `init` with the matching flags — see [Configuration](configuration.md#configuring-from-the-command-line).
+
 **Already have a long prompt or a ready task list (e.g. on your clipboard) and want to avoid pasting it line by line?** Use brief mode: `pbpaste | cleanloop init` (or `cleanloop init --brief path/to/file.md`). The text goes into `BRIEF.md`, and the **first iteration** reads it and organises the `TASK.md` queue itself, without starting any application work in that turn — then run `cleanloop once` to review the plan before letting `run` proceed unsupervised. Details in [Configuration](configuration.md#task-input-brief-instead-of-the-wizard).
 
 This creates:

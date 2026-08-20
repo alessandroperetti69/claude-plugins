@@ -56,6 +56,34 @@ Vincoli (cosa non toccare, stile, ...): riga vuota = prossimo · "." = fine
 Nota: una riga vuota *dentro* un testo incollato viene interpretata come separatore di task; se il prompt ha paragrafi, incollali uno alla volta o togli le righe vuote.
 (In alternativa `cleanloop init --task "…"` crea tutto senza domande, con un solo task.)
 
+Subito dopo i vincoli, il wizard continua con i **parametri del loop**: modello (menu con alias + "altro" per un id completo), effort, permission mode, uso dei subagenti, soglie, budget, iterazioni massime — **invio mantiene il default mostrato**. Esempio (abbreviato):
+```
+Parametri del loop  (invio = mantieni il default mostrato)
+
+Modello:
+  1) sonnet   2) opus   3) fable   4) haiku   5) altro (id completo)
+Scelta [invio=predefinito utente]: 2
+
+Effort:
+  1) low   2) medium   3) high   4) xhigh   5) max
+Scelta [invio=predefinito sessione]:
+
+Permission mode:
+  1) auto (consigliato)   2) acceptEdits   3) bypassPermissions (solo sandbox)
+Scelta [invio=auto]:
+
+Valutare il parallelismo con sub-agenti sui task indipendenti? [s/N, invio=no]:
+
+Soglia checkpoint (% contesto) [invio=25]:
+Soglia dura (% contesto) [invio=40]:
+Budget max per iterazione (USD) [invio=illimitato]:
+Iterazioni massime del loop [invio=20]:
+Iterazioni senza progresso prima dello stallo [invio=3]:
+
+Configurare anche i parametri avanzati (promemoria contesto, finestra token, nome log)? [s/N]:
+```
+Chiude subito ogni risposta in `.cleanloop/config`. Tutti questi parametri restano modificabili in seguito con `cleanloop config CHIAVE=VALORE` o rilanciando `init` con i flag corrispondenti — vedi [Configurazione](configuration.md#configurare-da-riga-di-comando).
+
 **Hai già un prompt lungo o un elenco di task pronto (es. nella clipboard) e vuoi evitare di incollarlo riga per riga?** Usa la modalità brief: `pbpaste | cleanloop init` (o `cleanloop init --brief percorso/al/file.md`). Il testo va in `BRIEF.md` e la **prima iterazione** lo legge e si organizza da sé la coda in `TASK.md`, senza iniziare lavoro applicativo in quel turno — poi conviene lanciare `cleanloop once` per rivedere il piano prima di un `run` senza supervisione. Dettagli in [Configurazione](configuration.md#input-dei-task-brief-invece-del-wizard).
 
 Vengono creati:
