@@ -3,6 +3,8 @@
 All notable changes to cleanloop are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.6.1] — 2026-08-20
 ### Fixed
 - `cleanloop_context_window()` autodetect ignored `CLEANLOOP_MODEL` (the model actually passed to `claude --model` for this project's iterations) and only ever read the global, user-wide `~/.claude/settings.json` `.model` field. `CLEANLOOP_MODEL` is now checked first, falling back to the global setting only when no per-project model is configured.
 - `cleanloop_context_window()`'s core heuristic — guessing 1M vs 200k from a literal `[1m]` substring in the model name/settings — was based on an older model generation and no longer matches reality: verified live (see below) that no current Claude model name or setting ever carries `[1m]`, yet a plain `"sonnet"` session was actually running at 1M context, making cleanloop report ~5x the real percentage (94% computed vs. 19% shown by the actual status line for the same session). Replaced with: 200k if the model name contains "haiku", otherwise 1M — every current Claude model has a 1M standard context window except Haiku 4.5, confirmed against the live model table.
